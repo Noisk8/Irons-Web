@@ -1,0 +1,3 @@
+import { NextResponse } from 'next/server'; import { z } from 'zod'; import { generateQuoteNumber } from '@/lib/utils';
+const quote=z.object({name:z.string().min(2),email:z.string().email(),phone:z.string().min(7),pieceType:z.string().min(1),city:z.string().min(2),description:z.string().min(20),privacy:z.literal(true)}).passthrough();
+export async function POST(request:Request){try{const data=quote.parse(await request.json());return NextResponse.json({ok:true,quoteNumber:generateQuoteNumber(),status:'PENDING',message:`Gracias, ${data.name}. Solicitud recibida.`},{status:201});}catch{return NextResponse.json({ok:false,error:'Datos inválidos'},{status:400});}}
