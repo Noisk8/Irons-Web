@@ -28,7 +28,18 @@ npm run build
 - `/`, `/tienda`, `/producto/[slug]`, `/carrito`
 - `/disena-tu-pieza`, `/grabado-laser`, `/proyectos`
 - `/nosotros`, `/contacto`, `/buscar`
-- `/admin` (estructura visual; requiere autenticación antes de producción)
+- `/admin` (panel protegido con Supabase Auth; CRUD de productos y categorías)
+
+## Panel administrativo y Supabase
+
+1. Crea el servicio Supabase y configura las variables de `.env.example`.
+2. Ejecuta `npx prisma migrate deploy` (o `npm run db:push` durante la primera preparación).
+3. Crea el usuario administrador desde Supabase Studio → Authentication → Users.
+4. Añade su correo a `ADMIN_EMAILS` y vuelve a desplegar.
+5. Entra en `/admin/login`.
+
+Las imágenes se guardan en el bucket público indicado por `SUPABASE_PRODUCT_BUCKET`. La llave `SUPABASE_SERVICE_ROLE_KEY` nunca debe exponerse al navegador.
+
 - `/api/orders`, `/api/quotes`
 - `/api/payments/create`, `/api/payments/confirm`, `/api/payments/webhook`
 
