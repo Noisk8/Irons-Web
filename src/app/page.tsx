@@ -41,10 +41,10 @@ export default function HomePage() {
   return (
     <Layout>
       <Hero />
-      <Categories />
+      {/* <Categories /> */}
       <FeaturedProducts />
       <CustomPiece />
-      <Projects />
+      {/* <Projects /> */}
       <Process />
       <Testimonials />
       <FinalCTA />

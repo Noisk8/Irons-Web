@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import { WhatsAppButton } from '@/components/common/WhatsAppButton';
 
 export const viewport: Viewport = {
   themeColor: [
@@ -76,6 +77,7 @@ export default function RootLayout({
           Saltar al contenido principal
         </a>
         {children}
+        <WhatsAppButton />
       </body>
     </html>
   );

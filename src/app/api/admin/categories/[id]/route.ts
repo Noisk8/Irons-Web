@@ -3,13 +3,14 @@ import { z } from 'zod';
 import prisma from '@/lib/prisma';
 import { requireAdminApi } from '@/lib/admin-api';
 const input = z.object({
-  name: z.string().trim().min(2),
+  name: z.string().trim().min(2).max(100),
   slug: z
     .string()
     .trim()
+    .max(100)
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-  description: z.string().optional().nullable(),
-  parentId: z.string().optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
+  parentId: z.string().max(50).optional().nullable(),
   isActive: z.boolean(),
 });
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {

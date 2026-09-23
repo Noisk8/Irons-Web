@@ -4,25 +4,25 @@ import { z } from 'zod';
 import prisma from '@/lib/prisma';
 import { requireAdminApi } from '@/lib/admin-api';
 const updateInput = z.object({
-  name: z.string().min(2),
-  slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-  description: z.string().min(10),
-  shortDescription: z.string().optional().nullable(),
+  name: z.string().trim().min(2).max(100),
+  slug: z.string().trim().max(100).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  description: z.string().trim().min(10).max(5000),
+  shortDescription: z.string().trim().max(500).optional().nullable(),
   price: z.coerce.number().min(0),
   compareAtPrice: z.coerce.number().min(0).optional().nullable(),
-  categoryId: z.string(),
-  material: z.string().optional().nullable(),
-  finish: z.string().optional().nullable(),
-  color: z.string().optional().nullable(),
-  dimensions: z.string().optional().nullable(),
-  usage: z.string().optional().nullable(),
-  productionTime: z.string().optional().nullable(),
+  categoryId: z.string().max(50),
+  material: z.string().trim().max(100).optional().nullable(),
+  finish: z.string().trim().max(100).optional().nullable(),
+  color: z.string().trim().max(100).optional().nullable(),
+  dimensions: z.string().trim().max(200).optional().nullable(),
+  usage: z.string().trim().max(100).optional().nullable(),
+  productionTime: z.string().trim().max(100).optional().nullable(),
   stock: z.coerce.number().int().min(0),
   isCustomizable: z.boolean(),
   requiresQuote: z.boolean(),
   featured: z.boolean(),
   status: z.nativeEnum(ProductStatus),
-  imageUrl: z.string().optional().nullable(),
+  imageUrl: z.string().trim().max(1000).optional().nullable(),
 });
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const denied = await requireAdminApi();

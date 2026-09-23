@@ -85,26 +85,30 @@ export function Process() {
                   index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'
                 )}
               >
+                {/* Step Number Circle - Now positioned absolutely relative to the row container */}
+                <div
+                  className={cn(
+                    'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full border-4 border-irons-stone-gray bg-irons-warm-white flex items-center justify-center z-10 lg:w-20 lg:h-20'
+                  )}
+                  aria-hidden="true"
+                >
+                  <span className="text-2xl lg:text-3xl font-display font-bold text-irons-charcoal">
+                    {step.number}
+                  </span>
+                </div>
+
                 <div
                   className={cn(
                     'relative lg:w-1/2 flex-shrink-0',
-                    index % 2 === 0 ? 'lg:pr-12 lg:text-right' : 'lg:pl-12'
+                    index % 2 === 0 ? 'lg:pr-16 lg:text-right' : 'lg:pl-16'
                   )}
                 >
                   <div className="relative">
-                    <div
-                      className={cn(
-                        'absolute top-1/2 -translate-y-1/2 w-16 h-16 rounded-full border-4 border-irons-stone-gray bg-irons-warm-white flex items-center justify-center z-10 lg:w-20 lg:h-20',
-                        index % 2 === 0 ? 'lg:right-[-48px]' : 'lg:left-[-48px]'
-                      )}
-                      aria-hidden="true"
-                    >
-                      <span className="text-2xl lg:text-3xl font-display font-bold text-irons-charcoal">
-                        {step.number}
-                      </span>
-                    </div>
                     <div className="relative z-20">
-                      <div className="inline-flex items-center justify-center w-14 h-14 lg:w-16 lg:h-16 rounded-xl bg-irons-warm-gold/10 text-irons-warm-gold mb-4">
+                      <div className={cn(
+                        "inline-flex items-center justify-center w-14 h-14 lg:w-16 lg:h-16 rounded-xl bg-irons-warm-gold/10 text-irons-warm-gold mb-4",
+                        index % 2 === 0 ? 'lg:ml-auto' : ''
+                      )}>
                         <step.icon className="h-7 w-7 lg:h-8 lg:w-8" aria-hidden="true" />
                       </div>
                       <h3 className="text-xl lg:text-2xl font-display font-bold text-irons-charcoal mb-3">

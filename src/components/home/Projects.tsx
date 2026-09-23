@@ -14,7 +14,7 @@ const demoProjects = [
     title: 'Restaurante Moderno - Medellín',
     category: 'Restaurantes',
     shortDesc: 'Iluminación decorativa y paneles divisores para comedor principal',
-    image: '/productos/Repisa dispensadora mural.png',
+    image: '/productos/repisa-dispensadora-mural.png',
     materials: ['Acero negro mate', 'Acero inoxidable cepillado'],
     city: 'Medellín',
     year: 2024,
@@ -27,7 +27,7 @@ const demoProjects = [
     title: 'Hotel Boutique - Cartagena',
     category: 'Hoteles',
     shortDesc: 'Señalética exterior, lámparas de habitaciones y paneles de recepción',
-    image: '/productos/Lámpara mural geométrica.png',
+    image: '/productos/lampara-mural-geometrica.png',
     materials: ['Acero corten', 'Latón pulido', 'Aluminio anodizado'],
     city: 'Cartagena',
     year: 2024,
@@ -40,7 +40,7 @@ const demoProjects = [
     title: 'Oficinas Corporativas - Bogotá',
     category: 'Oficinas',
     shortDesc: 'Divisores de espacios, mobiliario a medida y branding metálico',
-    image: '/productos/Panel decorativo “Árbol de Luz”.png',
+    image: '/productos/panel-decorativo-arbol-de-luz.png',
     materials: ['Acero negro mate', 'Vidrio', 'Madera'],
     city: 'Bogotá',
     year: 2023,
@@ -53,7 +53,7 @@ const demoProjects = [
     title: 'Residencia Moderna - Envigado',
     category: 'Decoración',
     shortDesc: 'Repisas baños, panel decorativo sala, lámpara comedor',
-    image: '/productos/Mesa auxiliar - “Vinyl Stand”.png',
+    image: '/productos/mesa-auxiliar-vinyl-stand.png',
     materials: ['Acero negro mate', 'Acero inoxidable'],
     city: 'Envigado',
     year: 2024,
@@ -66,7 +66,7 @@ const demoProjects = [
     title: 'Fachada Comercial - Laureles',
     category: 'Arquitectura',
     shortDesc: 'Revestimiento metálico perforado con iluminación integrada',
-    image: '/productos/Organizador mural para herramientas de jardín.png',
+    image: '/productos/organizador-mural-jardin.png',
     materials: ['Aluminio perforado', 'Acero inoxidable', 'LED RGB'],
     city: 'Medellín',
     year: 2023,
@@ -79,7 +79,7 @@ const demoProjects = [
     title: 'Baño Spa de Lujo',
     category: 'Baños',
     shortDesc: 'Repisas, soportes, panel decorativo y lámpara espejo a medida',
-    image: '/productos/Soporte mural para toallas.png',
+    image: '/productos/soporte-mural-toallas.png',
     materials: ['Acero inoxidable cepillado', 'Negro mate'],
     city: 'Medellín',
     year: 2024,
@@ -162,7 +162,7 @@ export function Projects() {
                   <div className="absolute inset-0 bg-gradient-to-t from-irons-charcoal/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" aria-hidden="true" />
 
                   <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <Badge variant={project.featured ? 'irons-gold' : 'outline'} className="text-xs">
+                    <Badge variant={project.featured ? 'irons-gold' : 'outline'} className={cn("text-xs", project.featured && "backdrop-blur-md bg-irons-warm-gold/80 border-irons-warm-gold text-white shadow-sm")}>
                       {project.featured ? 'Destacado' : project.category}
                     </Badge>
                     <div className="flex gap-2">

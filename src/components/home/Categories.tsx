@@ -96,7 +96,7 @@ function CategoryCard({ category, index }: CategoryCardProps) {
               <h3 className="text-xl font-display font-bold text-irons-charcoal group-hover:text-irons-warm-gold transition-colors">
                 {category.name}
               </h3>
-              <p className="mt-1 text-sm text-irons-metal-medium">{category.description}</p>
+              <p className="mt-1 text-sm text-irons-metal-dark font-medium">{category.description}</p>
             </div>
             <span className="text-xs text-irons-metal-light whitespace-nowrap">{category.count} productos</span>
           </div>
@@ -120,7 +120,7 @@ export function Categories() {
           <h2 id="categories-title" className="text-3xl lg:text-4xl font-display font-bold text-irons-charcoal mb-4">
             Categorías principales
           </h2>
-          <p className="text-lg text-irons-metal-medium">
+          <p className="text-lg text-irons-metal-dark font-medium">
             Explora nuestras colecciones diseñadas para cada espacio y necesidad
           </p>
         </div>
