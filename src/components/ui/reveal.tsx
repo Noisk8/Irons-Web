@@ -31,8 +31,8 @@ export function Reveal({ children, delay = 0, direction = 'up' }: RevealProps) {
 
   return (
     <motion.div
-      initial=\"hidden\"
-      whileInView=\"visible\"
+      initial="hidden"
+      whileInView="visible"
       viewport={{ once: true, margin: '-100px' }}
       variants={variants}
     >
