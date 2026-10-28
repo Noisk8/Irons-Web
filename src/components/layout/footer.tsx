@@ -195,12 +195,12 @@ export function Footer() {
               © {new Date().getFullYear()} Irons. Todos los derechos reservados.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-irons-metal-light md:justify-end">
-              <a href="/terminos" className="hover:text-irons-warm-gold transition-colors">
+              <Link href="/terminos" className="hover:text-irons-warm-gold transition-colors">
                 Términos y condiciones
-              </a>
-              <a href="/privacidad" className="hover:text-irons-warm-gold transition-colors">
+              </Link>
+              <Link href="/privacidad" className="hover:text-irons-warm-gold transition-colors">
                 Política de privacidad
-              </a>
+              </Link>
             </div>
           </div>
         </div>

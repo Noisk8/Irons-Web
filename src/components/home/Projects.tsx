@@ -146,7 +146,7 @@ export function Projects() {
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <Link
-                href={`/proyectos/${project.slug}`}
+            href="/proyectos"
                 className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-irons-warm-gold focus-visible:ring-offset-2"
                 aria-label={`Ver proyecto: ${project.title}`}
               >
