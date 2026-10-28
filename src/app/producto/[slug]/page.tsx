@@ -2,13 +2,24 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Check, Lightbulb, SlidersHorizontal } from 'lucide-react';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { Layout } from '@/components/layout';
 import { ProductActions } from '@/components/shop/ProductActions';
 import { ProductCard } from '@/components/shop/ProductCard';
 import { products } from '@/data/products';
 import { getCatalogProduct, getCatalogProducts } from '@/lib/catalog';
 import { formatPrice, getWhatsAppUrl } from '@/lib/utils';
+
+// Enlaces compartidos desde la versión inicial del catálogo. Se conservan para no perder tráfico.
+const legacyProductSlugs: Record<string, string> = {
+  'repisa-metallica-bano-negra': 'repisa-dispensadora-mural',
+  'panel-decorativo-arbol-retroiluminado': 'panel-arbol-de-luz',
+  'soporte-dispensadores-metalico': 'soporte-mural-toallas',
+  'placa-personalizada-grabada': 'organizador-jardin',
+  'repisa-flotante-metal-negro': 'mesa-auxiliar-vinyl-stand',
+  'panel-metalico-interior-texturizado': 'panel-luz-de-hoja',
+  'lampara-decorativa-restaurante': 'lampara-mural-geometrica',
+};
 
 export function generateStaticParams() {
   return products.map((product) => ({ slug: product.slug }));
@@ -20,7 +31,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product = await getCatalogProduct(slug);
+  const product = await getCatalogProduct(legacyProductSlugs[slug] || slug);
   return product
     ? { title: product.name, description: product.description }
     : { title: 'Producto no encontrado' };
@@ -28,6 +39,8 @@ export async function generateMetadata({
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const canonicalSlug = legacyProductSlugs[slug];
+  if (canonicalSlug) permanentRedirect(`/producto/${canonicalSlug}`);
   const catalogProducts = await getCatalogProducts();
   const product = catalogProducts.find((item) => item.slug === slug);
   if (!product) notFound();
