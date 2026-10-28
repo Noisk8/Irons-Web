@@ -9,6 +9,17 @@ export type DemoProduct = {
   imageOrientation?: 'portrait' | 'landscape';
 };
 
+/** Categorías que forman la colección editorial "Hogar". */
+export const homeCategorySlugs = new Set([
+  'muebles-soportes',
+  'iluminacion',
+  'decoracion-exterior',
+]);
+
+export function isHomeProduct(product: Pick<DemoProduct, 'categorySlug'>) {
+  return homeCategorySlugs.has(product.categorySlug);
+}
+
 export const products: DemoProduct[] = [
   { id:'p1', slug:'repisa-dispensadora-mural', name:'Repisa dispensadora mural', category:'Muebles y soportes', categorySlug:'muebles-soportes', description:'Repisa metálica de líneas limpias para organizar dispensadores y accesorios en baños contemporáneos.', price:185000, compareAtPrice:220000, image:'/productos/repisa-dispensadora-mural.png', material:'Acero', finish:'Pintura electrostática', color:'Negro mate', dimensions:'45 × 12 × 10 cm', usage:'Interior', productionTime:'5 a 8 días hábiles', stock:12, customizable:true, requiresQuote:false, featured:true },
   { id:'p2', slug:'panel-arbol-de-luz', name:'Panel decorativo Árbol de Luz', category:'Decoración interior', categorySlug:'decoracion-interior', description:'Panel calado con silueta orgánica y retroiluminación cálida para crear un punto focal sereno.', price:0, image:'/productos/panel-decorativo-arbol-de-luz.png', material:'Acero', finish:'Negro mate', color:'Negro y luz cálida', dimensions:'A medida', usage:'Interior', productionTime:'15 a 25 días hábiles', stock:0, customizable:true, requiresQuote:true, featured:true },

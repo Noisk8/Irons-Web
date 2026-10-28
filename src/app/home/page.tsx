@@ -1,32 +1,11 @@
-'use client';
-
 import Image from 'next/image';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
 import { ArrowRight, Bath, Lamp, Leaf, Sofa } from 'lucide-react';
 import { Layout } from '@/components/layout';
 import { ProductCard } from '@/components/shop/ProductCard';
-import { products } from '@/data/products';
+import { isHomeProduct } from '@/data/products';
+import { getCatalogProducts } from '@/lib/catalog';
 import { Reveal } from '@/components/ui/reveal';
-
-// Lazy Loading de componentes pesados
-const Process = dynamic(() => import('@/components/home/Process').then(mod => mod.Process), {
-  loading: () => <div className="py-20 text-center animate-pulse text-irons-metal-medium">Cargando proceso...</div>,
-  ssr: false
-});
-const Projects = dynamic(() => import('@/components/home/Projects').then(mod => mod.Projects), {
-  loading: () => <div className="py-20 text-center animate-pulse text-irons-metal-medium">Cargando proyectos...</div>,
-  ssr: false
-});
-const Testimonials = dynamic(() => import('@/components/home/Testimonials').then(mod => mod.Testimonials), {
-  loading: () => <div className="py-20 text-center animate-pulse text-irons-metal-medium">Cargando testimonios...</div>,
-  ssr: false
-});
-const FinalCTA = dynamic(() => import('@/components/home/FinalCTA').then(mod => mod.FinalCTA), {
-  loading: () => <div className="h-40 w-full animate-pulse bg-gray-100" />,
-  ssr: false
-});
 
 const spaces = [
   { name: 'Baño', description: 'Orden funcional en líneas limpias.', icon: Bath, category: 'muebles-soportes' },
@@ -35,7 +14,9 @@ const spaces = [
   { name: 'Jardín', description: 'Soluciones resistentes para exterior.', icon: Leaf, category: 'decoracion-exterior' },
 ];
 
-export default function HomeCollectionPage() {
+export default async function HomeCollectionPage() {
+  const homeProducts = (await getCatalogProducts()).filter(isHomeProduct);
+
   return (
     <Layout>
       <section className="bg-irons-warm-white overflow-hidden">
@@ -55,7 +36,7 @@ export default function HomeCollectionPage() {
             <div className="product-shine relative aspect-[4/5] overflow-hidden rounded-2xl shadow-2xl group">
               <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <Image
-                src="/productos/Repisa dispensadora mural.png"
+                src="/productos/repisa-dispensadora-mural.png"
                 alt="Repisa metálica Irons para un baño contemporáneo"
                 fill
                 priority
@@ -98,7 +79,7 @@ export default function HomeCollectionPage() {
         </Reveal>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {products.map((product, idx) => (
+          {homeProducts.map((product, idx) => (
             <Reveal key={product.id} delay={(idx % 3) * 0.1}>
               <ProductCard product={product}/>
             </Reveal>

@@ -22,11 +22,11 @@ export default function LaserPage() {
           <p className="text-xs uppercase tracking-[.3em] text-irons-warm-gold">
             Precisión que permanece
           </p>
-          <h1 className="mt-4 text-5xl font-bold">Grabado láser</h1>
+          <h1 className="mt-4 text-4xl font-bold sm:text-5xl">Grabado láser</h1>
           <p className="mt-6 text-lg leading-8 text-gray-600">
             Personalizamos metal y otros materiales con trazos precisos, repetibles y resistentes.
           </p>
-          <div className="mt-8 grid grid-cols-2 gap-3">
+          <div className="mt-8 grid gap-3 sm:grid-cols-2">
             {uses.map((x) => (
               <div key={x} className="rounded-lg bg-stone-100 p-4 text-sm">
                 {x}
@@ -36,7 +36,7 @@ export default function LaserPage() {
         </div>
         <div className="relative aspect-square overflow-hidden rounded-2xl">
           <Image
-            src="/productos/Panel decorativo “Árbol de Luz”.png"
+            src="/productos/panel-decorativo-arbol-de-luz.png"
             alt="Detalle de trabajo de corte y grabado"
             fill
             sizes="(max-width: 1024px) 100vw, 50vw"

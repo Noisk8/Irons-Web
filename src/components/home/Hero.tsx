@@ -49,14 +49,14 @@ export function Hero() {
       <div className="relative z-10 container mx-auto px-4 py-12 lg:py-20">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="text-left space-y-8 animate-slide-up">
-            <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-irons-warm-white/80 border border-irons-stone-gray backdrop-blur-sm">
+            <div className="inline-flex max-w-full flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-full border border-irons-stone-gray bg-irons-warm-white/80 px-4 py-2 text-center backdrop-blur-sm">
               <Sparkles className="h-4 w-4 text-irons-warm-gold" aria-hidden="true" />
               <span className="text-sm font-medium text-irons-charcoal">Fabricación colombiana · Envío nacional · Personalización</span>
             </div>
 
             <h1
               id="hero-title"
-              className="text-5xl sm:text-6xl lg:text-7xl font-display font-bold text-irons-charcoal leading-tight tracking-tight"
+              className="text-4xl font-display font-bold leading-tight tracking-tight text-irons-charcoal sm:text-6xl lg:text-7xl"
             >
               Objetos con carácter.<br />
               <span className="text-irons-warm-gold">Diseñados para durar.</span>
@@ -126,7 +126,7 @@ export function Hero() {
                       <div className="flex items-center justify-between mt-2">
                         <span className="text-lg font-bold">{formatPrice(product.price)}</span>
                         <Link 
-                          href={`/productos/${product.slug}`}
+                          href={`/producto/${product.slug}`}
                           className="px-3 py-1.5 bg-white text-irons-charcoal rounded-full text-xs font-bold hover:bg-irons-warm-gold hover:text-white transition-colors"
                         >
                           Ver más

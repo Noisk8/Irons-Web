@@ -11,7 +11,7 @@ const categories = [
     slug: 'decoracion-interior',
     description: 'Piezas que transforman tus espacios',
     icon: Home,
-    image: '/productos/Panel decorativo “Árbol de Luz”.png',
+    image: '/productos/panel-decorativo-arbol-de-luz.png',
     count: 24,
   },
   {
@@ -19,7 +19,7 @@ const categories = [
     slug: 'decoracion-exterior',
     description: 'Resistentes a la intemperie',
     icon: TreePine,
-    image: '/productos/Organizador mural para herramientas de jardín.png',
+    image: '/productos/organizador-mural-jardin.png',
     count: 18,
   },
   {
@@ -27,7 +27,7 @@ const categories = [
     slug: 'iluminacion',
     description: 'Luz con carácter propio',
     icon: Lamp,
-    image: '/productos/Lámpara mural geométrica.png',
+    image: '/productos/lampara-mural-geometrica.png',
     count: 15,
   },
   {
@@ -35,7 +35,7 @@ const categories = [
     slug: 'muebles-soportes',
     description: 'Funcionalidad y diseño',
     icon: Sofa,
-    image: '/productos/Mesa auxiliar - “Vinyl Stand”.png',
+    image: '/productos/mesa-auxiliar-vinyl-stand.png',
     count: 22,
   },
   {
@@ -43,7 +43,7 @@ const categories = [
     slug: 'accesorios',
     description: 'Detalles que marcan la diferencia',
     icon: Box,
-    image: '/productos/Soporte mural para toallas.png',
+    image: '/productos/soporte-mural-toallas.png',
     count: 30,
   },
   {
@@ -51,7 +51,7 @@ const categories = [
     slug: 'regalos-personalizados',
     description: 'Únicos para cada ocasión',
     icon: Gift,
-    image: '/productos/Repisa dispensadora mural.png',
+    image: '/productos/repisa-dispensadora-mural.png',
     count: 12,
   },
 ];

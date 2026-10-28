@@ -11,7 +11,7 @@ export default function AboutPage() {
       <section className="container grid items-center gap-12 px-4 py-16 lg:grid-cols-2">
         <div>
           <p className="text-xs uppercase tracking-[.3em] text-irons-warm-gold">Hecho localmente</p>
-          <h1 className="mt-4 text-5xl font-bold">Diseño preciso. Oficio humano.</h1>
+          <h1 className="mt-4 text-4xl font-bold sm:text-5xl">Diseño preciso. Oficio humano.</h1>
           <p className="mt-6 text-lg leading-8 text-gray-600">
             Irons combina diseño contemporáneo, metalistería y tecnología de corte y grabado para
             crear soluciones honestas, funcionales y duraderas.
@@ -23,7 +23,7 @@ export default function AboutPage() {
         </div>
         <div className="relative aspect-[4/5] overflow-hidden rounded-2xl">
           <Image
-            src="/productos/Lámpara mural geométrica.png"
+            src="/productos/lampara-mural-geometrica.png"
             alt="Lámpara diseñada y fabricada por Irons"
             fill
             sizes="(max-width: 1024px) 100vw, 50vw"

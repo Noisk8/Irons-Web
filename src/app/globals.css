@@ -222,6 +222,13 @@ body {
   overflow-x: clip;
 }
 
+img,
+video,
+canvas {
+  max-width: 100%;
+  height: auto;
+}
+
 input,
 select,
 textarea,

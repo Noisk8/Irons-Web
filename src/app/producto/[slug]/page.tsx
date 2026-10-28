@@ -58,7 +58,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   return (
     <Layout>
       <div className="container px-4 py-10">
-        <nav className="mb-8 text-sm text-gray-500">
+        <nav className="mb-8 flex flex-wrap items-center gap-x-1 gap-y-1 text-sm text-gray-500">
           <Link href="/">Inicio</Link> / <Link href="/tienda">Tienda</Link> /{' '}
           <Link href={`/tienda?category=${product.categorySlug}`}>{product.category}</Link> /{' '}
           {product.name}

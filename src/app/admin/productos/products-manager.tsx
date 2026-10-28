@@ -150,7 +150,7 @@ export function ProductsManager() {
   return (
     <div className="space-y-8">
       <form onSubmit={save} className="rounded-2xl border bg-white p-5 shadow-sm">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-xl font-semibold">
             {editing ? 'Editar producto' : 'Nuevo producto'}
           </h2>
@@ -261,7 +261,7 @@ export function ProductsManager() {
         </div>
         <button
           disabled={busy}
-          className="mt-6 rounded-lg bg-stone-900 px-6 py-3 font-semibold text-white disabled:opacity-50"
+          className="mt-6 min-h-12 rounded-lg bg-stone-900 px-6 py-3 font-semibold text-white disabled:opacity-50"
         >
           {busy ? 'Guardando…' : editing ? 'Guardar cambios' : 'Crear producto'}
         </button>

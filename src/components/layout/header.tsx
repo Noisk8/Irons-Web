@@ -67,7 +67,7 @@ export function Header() {
               Irons
             </span>
             <span className="hidden xl:block text-xs text-irons-metal-medium uppercase tracking-widest">
-              Objetos con carácter
+              Company
             </span>
           </Link>
 

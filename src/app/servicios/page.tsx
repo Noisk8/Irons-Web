@@ -15,7 +15,7 @@ const services = [
     description:
       'Desarrollamos piezas desde una medida, un boceto o una necesidad concreta. Definimos material, acabado y sistema de instalación contigo.',
     href: '/disena-tu-pieza',
-    image: '/productos/Mesa auxiliar - “Vinyl Stand”.png',
+    image: '/productos/mesa-auxiliar-vinyl-stand.png',
     icon: DraftingCompass,
     action: 'Empezar un proyecto',
   },
@@ -24,7 +24,7 @@ const services = [
     description:
       'Personalización precisa de nombres, fechas, logos, seriales, placas y códigos QR para proyectos personales o corporativos.',
     href: '/grabado-laser',
-    image: '/productos/Panel decorativo “Árbol de Luz”.png',
+    image: '/productos/panel-decorativo-arbol-de-luz.png',
     icon: ScanLine,
     action: 'Cotizar un grabado',
   },
@@ -33,10 +33,10 @@ const services = [
 export default function ServicesPage() {
   return (
     <Layout>
-      <section className="bg-irons-charcoal px-4 py-24 text-white">
+      <section className="bg-irons-charcoal px-4 py-16 text-white sm:py-24">
         <div className="container">
           <p className="text-xs uppercase tracking-[.3em] text-irons-warm-gold">Servicios Irons</p>
-          <h1 className="mt-5 max-w-4xl text-5xl font-bold md:text-7xl">
+          <h1 className="mt-5 max-w-4xl text-4xl font-bold sm:text-5xl md:text-7xl">
             Ideas únicas, ejecutadas con precisión.
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-stone-300">

@@ -6,25 +6,25 @@ const projects = [
   {
     title: 'Baño esencial',
     cat: 'Baños',
-    image: '/productos/Repisa dispensadora mural.png',
+    image: '/productos/repisa-dispensadora-mural.png',
     meta: 'Acero · Medellín · 2026',
   },
   {
     title: 'Árbol de Luz',
     cat: 'Iluminación',
-    image: '/productos/Panel decorativo “Árbol de Luz”.png',
+    image: '/productos/panel-decorativo-arbol-de-luz.png',
     meta: 'Panel calado · Bogotá · 2026',
   },
   {
     title: 'Rincón Vinyl',
     cat: 'Mobiliario',
-    image: '/productos/Mesa auxiliar - “Vinyl Stand”.png',
+    image: '/productos/mesa-auxiliar-vinyl-stand.png',
     meta: 'Acero y madera · Envigado · 2026',
   },
   {
     title: 'Orden exterior',
     cat: 'Exterior',
-    image: '/productos/Organizador mural para herramientas de jardín.png',
+    image: '/productos/organizador-mural-jardin.png',
     meta: 'Acero galvanizado · Rionegro · 2026',
   },
 ];
@@ -37,7 +37,7 @@ export default function ProjectsPage() {
         <p className="text-xs uppercase tracking-[.3em] text-irons-warm-gold">
           Portafolio demostrativo
         </p>
-        <h1 className="mt-4 text-5xl font-bold">Espacios con carácter</h1>
+        <h1 className="mt-4 text-4xl font-bold sm:text-5xl">Espacios con carácter</h1>
         <div className="my-10 flex flex-wrap gap-2">
           {cats.map((c) => (
             <button

@@ -15,7 +15,7 @@ const testimonials = [
     content:
       'Trabajar con Irons fue una experiencia excepcional. Entendieron perfectamente la visión del proyecto y la ejecutaron con una precisión impecable. Los paneles divisores para el restaurante no solo cumplen su función, sino que se convirtieron en el elemento protagonista del espacio.',
     rating: 5,
-    image: '/productos/Repisa dispensadora mural.png',
+    image: '/productos/repisa-dispensadora-mural.png',
     project: 'Restaurante Moderno - Medellín',
   },
   {
@@ -26,7 +26,7 @@ const testimonials = [
     content:
       'La señalética y la iluminación personalizada transformaron completamente la experiencia de nuestros huéspedes. El equipo de Irons aportó soluciones técnicas que no habíamos considerado y el resultado superó nuestras expectativas. Profesionalismo y calidad en cada detalle.',
     rating: 5,
-    image: '/productos/Panel decorativo “Árbol de Luz”.png',
+    image: '/productos/panel-decorativo-arbol-de-luz.png',
     project: 'Hotel Boutique - Cartagena',
   },
   {
@@ -37,7 +37,7 @@ const testimonials = [
     content:
       'He recomendado a Irons a varios clientes y siempre entregan. La capacidad de personalizar acabados, dimensiones y detalles hace que cada pieza encaje perfectamente en el diseño. Además, los tiempos de entrega son realistas y se cumplen.',
     rating: 5,
-    image: '/productos/Lámpara mural geométrica.png',
+    image: '/productos/lampara-mural-geometrica.png',
     project: 'Residencia Moderna - Envigado',
   },
   {
@@ -48,7 +48,7 @@ const testimonials = [
     content:
       'Queríamos algo único para nuestro café y el equipo de Irons diseñó una lámpara escultórica que es el centro de todas las miradas. El proceso fue transparente, nos mostraron renders antes de fabricar y el resultado final es exactamente lo que imaginábamos.',
     rating: 5,
-    image: '/productos/Mesa auxiliar - “Vinyl Stand”.png',
+    image: '/productos/mesa-auxiliar-vinyl-stand.png',
     project: 'Iluminación decorativa - Café Cultura',
   },
 ];

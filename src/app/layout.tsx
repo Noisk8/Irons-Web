@@ -13,7 +13,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://irons.company'),
   title: {
     default: 'Irons | Objetos con carácter. Diseñados para durar.',
     template: '%s | Irons',
@@ -52,13 +52,13 @@ export const metadata: Metadata = {
     title: 'Irons | Objetos con carácter. Diseñados para durar.',
     description:
       'Metalistería personalizada, grabado láser y decoración en metal para hogares y espacios comerciales.',
-    images: [{ url: '/productos/Panel decorativo “Árbol de Luz”.png', alt: 'Irons - Metalistería y decoración personalizada' }],
+    images: [{ url: '/productos/panel-decorativo-arbol-de-luz.png', alt: 'Irons - Metalistería y decoración personalizada' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Irons | Objetos con carácter',
     description: 'Metalistería personalizada y decoración en metal.',
-    images: ['/productos/Panel decorativo “Árbol de Luz”.png'],
+    images: ['/productos/panel-decorativo-arbol-de-luz.png'],
   },
   verification: {
     google: process.env.GOOGLE_SITE_VERIFICATION,

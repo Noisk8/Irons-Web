@@ -133,8 +133,8 @@ export function CategoriesManager() {
           />
           Visible en la tienda
         </label>
-        <div className="mt-5 flex gap-3">
-          <button className="rounded-lg bg-stone-900 px-5 py-2.5 font-semibold text-white">
+        <div className="mt-5 flex flex-wrap gap-3">
+          <button className="min-h-11 rounded-lg bg-stone-900 px-5 py-2.5 font-semibold text-white">
             Guardar
           </button>
           {editing && (
@@ -144,7 +144,7 @@ export function CategoriesManager() {
                 setEditing(null);
                 setForm(empty);
               }}
-              className="rounded-lg border px-4"
+              className="min-h-11 rounded-lg border px-4"
             >
               Cancelar
             </button>
@@ -158,7 +158,7 @@ export function CategoriesManager() {
         {items.map((c) => (
           <div
             key={c.id}
-            className="flex items-center justify-between gap-4 border-b p-4 last:border-0"
+            className="flex flex-col gap-3 border-b p-4 last:border-0 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
           >
             <div>
               <p className="font-medium">
@@ -168,7 +168,7 @@ export function CategoriesManager() {
                 /{c.slug} · {c._count.products} productos
               </p>
             </div>
-            <div className="space-x-3 text-sm">
+            <div className="flex flex-wrap gap-x-3 gap-y-2 text-sm">
               <button onClick={() => edit(c)} className="text-amber-700">
                 Editar
               </button>
