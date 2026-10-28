@@ -6,7 +6,7 @@ export type DemoProduct = {
   type?: string; design?: string; sheetThickness?: string; installedDepth?: string;
   lighting?: string; colorTemperature?: string; power?: string; control?: string; installation?: string;
   lightingOptions?: string[]; customizations?: string[]; recommendedUses?: string[]; care?: string;
-  imageOrientation?: 'portrait' | 'landscape';
+  imageOrientation?: 'portrait' | 'landscape'; galleryImages?: string[];
 };
 
 /** Categorías que forman la colección editorial "Hogar". */
@@ -30,7 +30,7 @@ export const products: DemoProduct[] = [
   {
     id: 'p7', slug: 'panel-luz-de-hoja', name: 'Panel Botánico Luz de Hoja', category: 'Paneles', categorySlug: 'paneles',
     description: 'Panel decorativo de acero cortado con láser y retroiluminación LED cálida. Su diseño botánico aporta profundidad, textura y una atmósfera acogedora a cualquier espacio.',
-    price: 0, image: '/productos/panel-luz-de-hoja.png', material: 'Acero o hierro laminado', finish: 'Pintura electrostática negro mate', color: 'Negro mate',
+    price: 0, image: '/productos/panel-luz-de-hoja.png', imageOrientation: 'portrait', material: 'Acero o hierro laminado', finish: 'Pintura electrostática negro mate', color: 'Negro mate',
     dimensions: '80 × 180 cm', usage: 'Interior; exterior bajo especificación técnica', productionTime: 'Fabricación bajo pedido', stock: 0, customizable: true, requiresQuote: true, featured: true,
     type: 'Panel decorativo mural retroiluminado', design: 'Hojas y ramas orgánicas', sheetThickness: '1,5 a 3 mm', installedDepth: 'Aproximadamente 4 a 7 cm',
     lighting: 'LED posterior', colorTemperature: '2700 K, luz cálida', power: '110–120 V o adaptador según instalación', control: 'Interruptor, dimmer o sistema inteligente opcional', installation: 'Sistema de anclaje mural incluido o disponible',
@@ -42,7 +42,7 @@ export const products: DemoProduct[] = [
   {
     id: 'p8', slug: 'panel-geometrico-arco', name: 'Panel Geométrico Arco', category: 'Paneles', categorySlug: 'paneles',
     description: 'Panel decorativo de acero cortado con láser, inspirado en la geometría Art Déco y equipado con iluminación LED posterior. Una pieza arquitectónica para transformar paredes interiores.',
-    price: 0, image: '/productos/panel-geometrico-arco.png', material: 'Acero o hierro laminado', finish: 'Pintura electrostática negro mate', color: 'Negro mate',
+    price: 0, image: '/productos/panel-geometrico-arco.png', imageOrientation: 'portrait', material: 'Acero o hierro laminado', finish: 'Pintura electrostática negro mate', color: 'Negro mate',
     dimensions: '80 × 180 cm', usage: 'Interior; exterior bajo especificación técnica', productionTime: 'Fabricación bajo pedido', stock: 0, customizable: true, requiresQuote: true, featured: true,
     type: 'Panel decorativo mural retroiluminado', design: 'Geométrico Art Déco', sheetThickness: '1,5 a 3 mm', installedDepth: 'Aproximadamente 4 a 7 cm',
     lighting: 'LED posterior', colorTemperature: '4000 K, luz blanca neutra', power: '110–120 V o adaptador según instalación', control: 'Interruptor, dimmer o sistema inteligente opcional', installation: 'Sistema de anclaje mural',

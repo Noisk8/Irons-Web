@@ -42,13 +42,18 @@ const navigation = [
 export function Header() {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [isCartReady, setIsCartReady] = React.useState(false);
   const { items, openCart, getTotalItems } = useCartStore();
   const cartCount = getTotalItems();
 
   React.useEffect(() => {
+    const hydrationTimer = window.setTimeout(() => setIsCartReady(true), 0);
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.clearTimeout(hydrationTimer);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   return (
@@ -85,23 +90,13 @@ export function Header() {
               </Link>
             </Button>
 
-            <a
-              href={getWhatsAppUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden sm:flex items-center space-x-1 text-sm text-irons-metal-medium hover:text-irons-charcoal transition-colors"
-            >
-              <Phone className="h-4 w-4" aria-hidden="true" />
-              <span>WhatsApp</span>
-            </a>
-
             <Button variant="ghost" size="sm" asChild onClick={openCart}>
-              <Link href="/carrito">
+              <Link href="/carrito" className="relative">
                 <ShoppingCart className="h-5 w-5" aria-hidden="true" />
                 <span className="sr-only">Carrito</span>
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-irons-charcoal text-xs text-irons-warm-white">
-                    {cartCount > 99 ? '99+' : cartCount}
+                {isCartReady && cartCount > 0 && (
+                  <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white shadow-sm">
+                    {cartCount}
                   </span>
                 )}
               </Link>
@@ -115,9 +110,20 @@ export function Header() {
             </Button>
           </div>
 
+          <div className="flex items-center gap-1 xl:hidden">
+            <Button variant="ghost" size="icon" asChild onClick={openCart}>
+              <Link href="/carrito" className="relative" aria-label="Ver carrito">
+                <ShoppingCart className="h-5 w-5" aria-hidden="true" />
+                {isCartReady && cartCount > 0 && (
+                  <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white shadow-sm">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+            </Button>
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="xl:hidden" aria-label="Abrir menú">
+              <Button variant="ghost" size="icon" aria-label="Abrir menú">
                 {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </Button>
             </SheetTrigger>
@@ -156,6 +162,7 @@ export function Header() {
               </div>
             </SheetContent>
           </Sheet>
+          </div>
         </div>
       </nav>
     </header>

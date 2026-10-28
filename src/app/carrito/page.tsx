@@ -4,12 +4,18 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { Layout } from '@/components/layout';
+import { useEffect, useState } from 'react';
 import { useCartStore } from '@/store/cart';
 import { calculateShipping } from '@/lib/commerce';
 import { formatPrice } from '@/lib/utils';
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, getSubtotal } = useCartStore();
+  const [isCartReady, setIsCartReady] = useState(false);
+  useEffect(() => {
+    const hydrationTimer = window.setTimeout(() => setIsCartReady(true), 0);
+    return () => window.clearTimeout(hydrationTimer);
+  }, []);
   const subtotal = getSubtotal();
   const shipping = calculateShipping(subtotal);
 
@@ -17,7 +23,9 @@ export default function CartPage() {
     <Layout>
       <section className="container px-4 py-10 sm:py-14">
         <h1 className="text-3xl font-bold sm:text-4xl">Tu carrito</h1>
-        {!items.length ? (
+        {!isCartReady ? (
+          <div className="py-20 text-center text-gray-500 sm:py-24" role="status">Cargando carrito…</div>
+        ) : !items.length ? (
           <div className="py-20 text-center sm:py-24"><p className="mb-6 text-gray-500">Tu carrito está vacío.</p><Link href="/tienda" className="inline-flex rounded-md bg-irons-charcoal px-6 py-3 text-white">Explorar tienda</Link></div>
         ) : (
           <div className="mt-8 grid gap-8 lg:mt-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-10">
@@ -36,7 +44,7 @@ export default function CartPage() {
               <h2 className="text-2xl font-bold">Resumen</h2>
               <div className="mt-6 space-y-3 text-sm"><div className="flex justify-between gap-4"><span>Subtotal</span><span className="text-right">{formatPrice(subtotal)}</span></div><div className="flex justify-between gap-4"><span>Envío estimado</span><span className="text-right">{shipping ? formatPrice(shipping) : 'Gratis'}</span></div><div className="flex justify-between gap-4 border-t pt-4 text-lg font-bold"><span>Total</span><span className="text-right">{formatPrice(subtotal + shipping)}</span></div></div>
               <p className="mt-5 text-xs text-stone-400">El servidor recalculará precios e inventario antes del pago.</p>
-              <button className="mt-6 min-h-12 w-full rounded-md bg-irons-warm-gold px-4 py-3 font-semibold text-black">Continuar al checkout (demo)</button>
+              <Link href="/checkout" className="mt-6 flex min-h-12 w-full items-center justify-center rounded-md bg-irons-warm-gold px-4 py-3 text-center font-semibold text-black transition-colors hover:bg-irons-warm-gold-light">Continuar al checkout</Link>
             </aside>
           </div>
         )}

@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Check, Lightbulb, SlidersHorizontal } from 'lucide-react';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { Layout } from '@/components/layout';
 import { ProductActions } from '@/components/shop/ProductActions';
 import { ProductCard } from '@/components/shop/ProductCard';
+import { ProductGallery } from '@/components/shop/ProductGallery';
 import { products } from '@/data/products';
 import { getCatalogProduct, getCatalogProducts } from '@/lib/catalog';
 import { formatPrice, getWhatsAppUrl } from '@/lib/utils';
@@ -77,18 +77,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           {product.name}
         </nav>
         <div className="grid gap-10 lg:grid-cols-2">
-          <div
-            className={`product-shine relative overflow-hidden rounded-2xl bg-stone-100 shadow-xl lg:sticky lg:top-24 ${product.imageOrientation === 'landscape' ? 'aspect-[3/2]' : 'aspect-[4/5]'}`}
-          >
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              priority
-              className="object-cover transition-transform duration-700 hover:scale-[1.03]"
-              sizes="(max-width:1024px) 100vw, 50vw"
-            />
-          </div>
+          <ProductGallery image={product.image} images={product.galleryImages} alt={product.name} orientation={product.imageOrientation} />
           <div>
             <p className="text-xs uppercase tracking-[.2em] text-irons-warm-gold">
               {product.category} · Bajo pedido

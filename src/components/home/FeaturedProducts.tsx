@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const demoProducts = [
   {
-    id: '1',
+    id: 'p1',
     slug: 'repisa-dispensadora-mural',
     name: 'Repisa metálica negra para baño',
     shortDescription: 'Soporte elegante para dispensadores y accesorios',
@@ -29,7 +29,7 @@ const demoProducts = [
     stock: 15,
   },
   {
-    id: '2',
+    id: 'p2',
     slug: 'panel-arbol-de-luz',
     name: 'Panel decorativo Árbol de Luz',
     shortDescription: 'Silueta de árbol con luz cálida integrada',
@@ -45,7 +45,7 @@ const demoProducts = [
     stock: 0,
   },
   {
-    id: '3',
+    id: 'p3',
     slug: 'lampara-mural-geometrica',
     name: 'Lámpara mural geométrica',
     shortDescription: 'Formas escultóricas que juegan con la luz',
@@ -61,7 +61,7 @@ const demoProducts = [
     stock: 8,
   },
   {
-    id: '4',
+    id: 'p6',
     slug: 'soporte-mural-toallas',
     name: 'Soporte mural para toallas',
     shortDescription: 'Diseño minimalista para baño u oficina',
@@ -77,7 +77,7 @@ const demoProducts = [
     stock: 25,
   },
   {
-    id: '5',
+    id: 'p5',
     slug: 'organizador-jardin',
     name: 'Organizador mural para jardín',
     shortDescription: 'Sistema mural resistente para mantener herramientas ordenadas',
@@ -93,7 +93,7 @@ const demoProducts = [
     stock: 5,
   },
   {
-    id: '6',
+    id: 'p4',
     slug: 'mesa-auxiliar-vinyl-stand',
     name: 'Mesa auxiliar Vinyl Stand',
     shortDescription: 'Mesa auxiliar con espacio para discos y objetos decorativos',
@@ -109,7 +109,7 @@ const demoProducts = [
     stock: 12,
   },
   {
-    id: '7',
+    id: 'p7',
     slug: 'panel-luz-de-hoja',
     name: 'Panel Botánico Luz de Hoja',
     shortDescription: 'Panel decorativo retroiluminado de diseño botánico',
@@ -125,20 +125,20 @@ const demoProducts = [
     stock: 0,
   },
   {
-    id: '8',
-    slug: 'lampara-mural-geometrica',
-    name: 'Lámpara mural geométrica',
-    shortDescription: 'Aplique escultórico de geometría precisa y luz ambiental',
-    price: 350000,
-    compareAtPrice: 390000,
-    category: 'Iluminación',
-    image: '/productos/lampara-mural-geometrica.png',
-    images: ['/productos/lampara-mural-geometrica.png'],
-    tags: ['Nuevo'],
-    status: 'ACTIVE',
+    id: 'p8',
+    slug: 'panel-geometrico-arco',
+    name: 'Panel Geométrico Arco',
+    shortDescription: 'Panel decorativo retroiluminado de geometría Art Déco',
+    price: 0,
+    compareAtPrice: null,
+    category: 'Paneles',
+    image: '/productos/panel-geometrico-arco.png',
+    images: ['/productos/panel-geometrico-arco.png'],
+    tags: ['Hecho bajo pedido'],
+    status: 'REQUIRES_QUOTE',
     isCustomizable: true,
-    requiresQuote: false,
-    stock: 7,
+    requiresQuote: true,
+    stock: 0,
   },
 ];
 
