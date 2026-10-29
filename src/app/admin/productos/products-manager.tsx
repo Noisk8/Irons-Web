@@ -45,6 +45,7 @@ const empty = {
   featured: false,
   status: 'DRAFT',
   imageUrl: '',
+  imageUrls: [] as string[],
 };
 const validationHelp: Record<string, string> = {
   name: 'Nombre: escribe entre 2 y 100 caracteres.',
@@ -63,6 +64,7 @@ const validationHelp: Record<string, string> = {
   productionTime: 'Tiempo de fabricación: máximo 100 caracteres.',
   status: 'Estado: selecciona una opción válida.',
   imageUrl: 'Imagen: la dirección de la imagen no es válida.',
+  imageUrls: 'Fotos de detalle: cada imagen debe haberse subido correctamente.',
 };
 export function ProductsManager() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -106,10 +108,11 @@ export function ProductsManager() {
       featured: p.featured,
       status: p.status,
       imageUrl: p.images.find((i) => i.isPrimary)?.url || p.images[0]?.url || '',
+      imageUrls: p.images.filter((i) => !i.isPrimary).map((i) => i.url),
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-  async function upload(file: File) {
+  async function upload(file: File, kind: 'primary' | 'detail') {
     setBusy(true);
     const body = new FormData();
     body.append('file', file);
@@ -120,7 +123,13 @@ export function ProductsManager() {
       setMessage(data.error);
       return;
     }
-    setForm((v) => ({ ...v, imageUrl: data.url }));
+    setForm((v) => kind === 'primary'
+      ? { ...v, imageUrl: data.url }
+      : { ...v, imageUrls: [...v.imageUrls, data.url] });
+  }
+  async function uploadDetails(files: FileList | null) {
+    if (!files) return;
+    for (const file of Array.from(files)) await upload(file, 'detail');
   }
   async function save(e: FormEvent) {
     e.preventDefault();
@@ -256,20 +265,20 @@ export function ProductsManager() {
               <option value="ARCHIVED">Archivado</option>
             </select>
           </label>
-          <label className="block text-sm font-medium">
-            Imagen
-            <input
-              type="file"
-              accept="image/png,image/jpeg,image/webp,image/avif"
-              onChange={(e) => e.target.files?.[0] && void upload(e.target.files[0])}
-              className="mt-1 block w-full text-sm"
-            />
-            {form.imageUrl && (
-              <span className="mt-1 block truncate text-xs text-green-700">
-                Imagen lista: {form.imageUrl}
-              </span>
-            )}
-          </label>
+          <div className="block text-sm font-medium">
+            <span>Foto principal</span>
+            <input id="primary-image" type="file" accept="image/png,image/jpeg,image/webp,image/avif" onChange={(e) => e.target.files?.[0] && void upload(e.target.files[0], 'primary')} className="sr-only" />
+            <label htmlFor="primary-image" className="mt-2 inline-flex cursor-pointer rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-medium text-stone-800 shadow-sm hover:bg-stone-50">Examinar archivo</label>
+            <span className="mt-1 block text-xs font-normal text-stone-500">Esta será la imagen de portada.</span>
+            {form.imageUrl && <span className="mt-1 block truncate text-xs font-normal text-green-700">Foto principal lista ✓</span>}
+          </div>
+          <div className="block text-sm font-medium">
+            <span>Fotos de detalle</span>
+            <input id="detail-images" type="file" multiple accept="image/png,image/jpeg,image/webp,image/avif" onChange={(e) => void uploadDetails(e.target.files)} className="sr-only" />
+            <label htmlFor="detail-images" className="mt-2 inline-flex cursor-pointer rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-medium text-stone-800 shadow-sm hover:bg-stone-50">Examinar archivos</label>
+            <span className="mt-1 block text-xs font-normal text-stone-500">Puedes seleccionar hasta 10 fotos de la pieza.</span>
+            {form.imageUrls.length > 0 && <div className="mt-2 flex flex-wrap gap-2">{form.imageUrls.map((url, index) => <button key={url} type="button" onClick={() => setForm((v) => ({ ...v, imageUrls: v.imageUrls.filter((_, itemIndex) => itemIndex !== index) }))} className="rounded bg-stone-100 px-2 py-1 text-xs font-normal text-stone-700 hover:bg-red-50 hover:text-red-700">Detalle {index + 1} ×</button>)}</div>}
+          </div>
         </div>
         <label className="mt-4 block text-sm font-medium">
           Descripción corta

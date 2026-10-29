@@ -23,6 +23,7 @@ const updateInput = z.object({
   featured: z.boolean(),
   status: z.nativeEnum(ProductStatus),
   imageUrl: z.string().trim().max(1000).optional().nullable(),
+  imageUrls: z.array(z.string().trim().min(1).max(1000)).max(10).optional(),
 });
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const denied = await requireAdminApi();
@@ -30,7 +31,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   try {
     const { id } = await params;
     const data = updateInput.parse(await request.json());
-    const { imageUrl, ...product } = data;
+    const { imageUrl, imageUrls = [], ...product } = data;
+    const imageList = [...new Set([imageUrl, ...imageUrls].filter((url): url is string => Boolean(url)))];
     const result = await prisma.$transaction(async (tx) => {
       const updated = await tx.product.update({
         where: { id },
@@ -40,18 +42,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
           compareAtPrice: product.compareAtPrice || null,
         },
       });
-      if (imageUrl) {
-        await tx.productImage.updateMany({ where: { productId: id }, data: { isPrimary: false } });
-        await tx.productImage.upsert({
-          where: {
-            id:
-              (await tx.productImage.findFirst({ where: { productId: id, url: imageUrl } }))?.id ??
-              'new-image',
-          },
-          update: { isPrimary: true, alt: product.name },
-          create: { productId: id, url: imageUrl, alt: product.name, isPrimary: true },
-        });
-      }
+      await tx.productImage.deleteMany({ where: { productId: id } });
+      if (imageList.length) await tx.productImage.createMany({
+        data: imageList.map((url, index) => ({ productId: id, url, alt: product.name, isPrimary: index === 0, sortOrder: index })),
+      });
       return updated;
     });
     return NextResponse.json(result);

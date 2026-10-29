@@ -28,6 +28,7 @@ const productInput = z.object({
   featured: z.boolean().default(false),
   status: z.nativeEnum(ProductStatus).default(ProductStatus.DRAFT),
   imageUrl: z.string().trim().max(1000).optional().nullable(),
+  imageUrls: z.array(z.string().trim().min(1).max(1000)).max(10).optional(),
 });
 
 export async function GET() {
@@ -44,14 +45,15 @@ export async function POST(request: Request) {
   if (denied) return denied;
   try {
     const data = productInput.parse(await request.json());
-    const { imageUrl, ...product } = data;
+    const { imageUrl, imageUrls = [], ...product } = data;
+    const imageList = [...new Set([imageUrl, ...imageUrls].filter((url): url is string => Boolean(url)))];
     const created = await prisma.product.create({
       data: {
         ...product,
         shortDescription: product.shortDescription || null,
         compareAtPrice: product.compareAtPrice || null,
-        images: imageUrl
-          ? { create: { url: imageUrl, alt: product.name, isPrimary: true } }
+        images: imageList.length
+          ? { create: imageList.map((url, index) => ({ url, alt: product.name, isPrimary: index === 0, sortOrder: index })) }
           : undefined,
       },
       include: { category: true, images: true },
