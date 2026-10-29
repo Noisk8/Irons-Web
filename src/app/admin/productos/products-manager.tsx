@@ -47,13 +47,19 @@ const empty = {
   imageUrl: '',
   imageUrls: [] as string[],
 };
+const copFormatter = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 });
+const parseCop = (value: string) => Number(value.replace(/\D/g, '') || '0');
+const formatCopInput = (value: string) => {
+  const digits = value.replace(/\D/g, '');
+  return digits ? copFormatter.format(Number(digits)) : '';
+};
 const validationHelp: Record<string, string> = {
   name: 'Nombre: escribe entre 2 y 100 caracteres.',
   slug: 'Slug: usa solo minúsculas, números y guiones; por ejemplo: repisa-metalica-negra.',
   description: 'Descripción: escribe al menos 10 caracteres.',
   shortDescription: 'Descripción corta: máximo 500 caracteres.',
-  price: 'Precio: ingresa un número igual o mayor que 0, sin símbolos como $ ni puntos de miles.',
-  compareAtPrice: 'Precio anterior: ingresa un número igual o mayor que 0, o déjalo vacío.',
+  price: 'Precio: ingresa un valor en pesos colombianos igual o mayor que 0.',
+  compareAtPrice: 'Precio anterior: ingresa un valor en pesos colombianos igual o mayor que 0, o déjalo vacío.',
   categoryId: 'Categoría: selecciona una categoría antes de guardar.',
   stock: 'Inventario: ingresa un número entero igual o mayor que 0.',
   material: 'Material: máximo 100 caracteres.',
@@ -93,8 +99,8 @@ export function ProductsManager() {
       slug: p.slug,
       description: p.description,
       shortDescription: p.shortDescription || '',
-      price: String(p.price),
-      compareAtPrice: p.compareAtPrice ? String(p.compareAtPrice) : '',
+      price: formatCopInput(String(p.price)),
+      compareAtPrice: p.compareAtPrice ? formatCopInput(String(p.compareAtPrice)) : '',
       categoryId: p.categoryId,
       material: p.material || '',
       finish: p.finish || '',
@@ -137,8 +143,8 @@ export function ProductsManager() {
     setMessage('');
     const payload = {
       ...form,
-      price: Number(form.price),
-      compareAtPrice: form.compareAtPrice ? Number(form.compareAtPrice) : null,
+      price: parseCop(form.price),
+      compareAtPrice: form.compareAtPrice ? parseCop(form.compareAtPrice) : null,
       stock: Number(form.stock),
     };
     const res = await fetch(editing ? `/api/admin/products/${editing}` : '/api/admin/products', {
@@ -176,6 +182,25 @@ export function ProductsManager() {
         onChange={(e) => setForm((v) => ({ ...v, [key]: e.target.value }))}
         className="mt-1 w-full rounded-lg border bg-white px-3 py-2"
       />
+    </label>
+  );
+  const currencyField = (key: 'price' | 'compareAtPrice', label: string, required = false) => (
+    <label className="block text-sm font-medium">
+      {label}
+      <div className="relative mt-1">
+        <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-stone-500">$</span>
+        <input
+          required={required}
+          type="text"
+          inputMode="numeric"
+          value={form[key]}
+          onChange={(e) => setForm((v) => ({ ...v, [key]: formatCopInput(e.target.value) }))}
+          className="w-full rounded-lg border bg-white py-2 pl-7 pr-12"
+          placeholder="0"
+        />
+        <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs text-stone-500">COP</span>
+      </div>
+      <span className="mt-1 block text-xs font-normal text-stone-500">Se formatea automáticamente en pesos colombianos.</span>
     </label>
   );
   return (
@@ -241,8 +266,8 @@ export function ProductsManager() {
               ))}
             </select>
           </label>
-          {field('price', 'Precio', 'number')}
-          {field('compareAtPrice', 'Precio anterior', 'number')}
+          {currencyField('price', 'Precio', true)}
+          {currencyField('compareAtPrice', 'Precio anterior')}
           {field('stock', 'Inventario', 'number')}
           {field('material', 'Material')}
           {field('finish', 'Acabado')}
