@@ -21,7 +21,7 @@ export default async function AdminPage() {
     { label: 'Productos', value: products, icon: Package, href: '/admin/productos' },
     { label: 'Categorías', value: categories, icon: Tags, href: '/admin/categorias' },
     { label: 'Pedidos', value: orders, icon: ShoppingBag, href: '/admin' },
-    { label: 'Cotizaciones', value: quotes, icon: FileText, href: '/admin' },
+    { label: 'Cotizaciones', value: quotes, icon: FileText, href: '/admin/cotizaciones' },
   ];
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-10 text-stone-900">
