@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState, type FormEvent } from 'react';
+import { slugify } from '@/lib/utils';
 type Category = { id: string; name: string };
 type Product = {
   id: string;
@@ -44,6 +45,24 @@ const empty = {
   featured: false,
   status: 'DRAFT',
   imageUrl: '',
+};
+const validationHelp: Record<string, string> = {
+  name: 'Nombre: escribe entre 2 y 100 caracteres.',
+  slug: 'Slug: usa solo minúsculas, números y guiones; por ejemplo: repisa-metalica-negra.',
+  description: 'Descripción: escribe al menos 10 caracteres.',
+  shortDescription: 'Descripción corta: máximo 500 caracteres.',
+  price: 'Precio: ingresa un número igual o mayor que 0, sin símbolos como $ ni puntos de miles.',
+  compareAtPrice: 'Precio anterior: ingresa un número igual o mayor que 0, o déjalo vacío.',
+  categoryId: 'Categoría: selecciona una categoría antes de guardar.',
+  stock: 'Inventario: ingresa un número entero igual o mayor que 0.',
+  material: 'Material: máximo 100 caracteres.',
+  finish: 'Acabado: máximo 100 caracteres.',
+  color: 'Color: máximo 100 caracteres.',
+  dimensions: 'Dimensiones: máximo 200 caracteres.',
+  usage: 'Uso: máximo 100 caracteres.',
+  productionTime: 'Tiempo de fabricación: máximo 100 caracteres.',
+  status: 'Estado: selecciona una opción válida.',
+  imageUrl: 'Imagen: la dirección de la imagen no es válida.',
 };
 export function ProductsManager() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -121,7 +140,10 @@ export function ProductsManager() {
     const data = await res.json();
     setBusy(false);
     if (!res.ok) {
-      setMessage(data.error || 'Ocurrió un error.');
+      const fields = Object.keys(data.details?.fieldErrors || {})
+        .map((field) => validationHelp[field] || `${field}: revisa este valor.`)
+        .join(' · ');
+      setMessage(fields || data.error || 'Ocurrió un error.');
       return;
     }
     setForm({ ...empty, categoryId: categories[0]?.id || '' });
@@ -171,8 +193,29 @@ export function ProductsManager() {
           <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">{message}</p>
         )}
         <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {field('name', 'Nombre')}
-          {field('slug', 'Slug')}
+          <label className="block text-sm font-medium">
+            Nombre
+            <input
+              required
+              value={form.name}
+              onChange={(e) => setForm((v) => ({
+                ...v,
+                name: e.target.value,
+                slug: !editing && (!v.slug || v.slug === slugify(v.name)) ? slugify(e.target.value) : v.slug,
+              }))}
+              className="mt-1 w-full rounded-lg border bg-white px-3 py-2"
+            />
+          </label>
+          <label className="block text-sm font-medium">
+            Slug
+            <input
+              required
+              value={form.slug}
+              onChange={(e) => setForm((v) => ({ ...v, slug: slugify(e.target.value) }))}
+              className="mt-1 w-full rounded-lg border bg-white px-3 py-2"
+            />
+            <span className="mt-1 block text-xs font-normal text-stone-500">Se genera desde el nombre; solo minúsculas, números y guiones.</span>
+          </label>
           <label className="block text-sm font-medium">
             Categoría
             <select
