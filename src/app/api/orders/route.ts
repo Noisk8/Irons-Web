@@ -1,3 +1,53 @@
-import { NextResponse } from 'next/server'; import { z } from 'zod'; import { products } from '@/data/products'; import { generateOrderNumber } from '@/lib/utils'; import { isTrustedAppRequest, privateApiHeaders } from '@/lib/request-security';
-const input=z.object({email:z.string().email(),phone:z.string().optional(),items:z.array(z.object({productId:z.string(),quantity:z.number().int().min(1).max(20)})).min(1),shippingAddress:z.record(z.unknown())});
-export async function POST(req:Request){if(!isTrustedAppRequest(req))return NextResponse.json({error:'Origen no autorizado'},{status:403,headers:privateApiHeaders()});try{const data=input.parse(await req.json());let subtotal=0;const items=data.items.map(item=>{const product=products.find(p=>p.id===item.productId);if(!product||product.requiresQuote||product.stock<item.quantity)throw new Error('Producto no disponible');subtotal+=product.price*item.quantity;return {productId:product.id,name:product.name,price:product.price,quantity:item.quantity,total:product.price*item.quantity};});const shippingCost=subtotal>=400000?0:25000;const orderNumber=generateOrderNumber();return NextResponse.json({id:orderNumber,orderNumber,status:'PENDING',items,subtotal,shippingCost,total:subtotal+shippingCost,currency:'COP',mock:true},{status:201,headers:privateApiHeaders()});}catch{return NextResponse.json({error:'No fue posible crear el pedido. Revisa productos, inventario y datos.'},{status:400,headers:privateApiHeaders()});}}
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import prisma from '@/lib/prisma';
+import { calculateShipping } from '@/lib/commerce';
+import { generateOrderNumber } from '@/lib/utils';
+import { isTrustedAppRequest, privateApiHeaders } from '@/lib/request-security';
+
+const input = z.object({
+  email: z.string().trim().email().max(254),
+  phone: z.string().trim().min(1).max(50),
+  shippingAddress: z.object({
+    name: z.string().trim().min(1).max(200),
+    address: z.string().trim().min(1).max(300),
+    city: z.string().trim().min(1).max(100),
+    department: z.string().trim().min(1).max(100),
+    notes: z.string().trim().max(1000).optional(),
+  }),
+  items: z.array(z.object({ productId: z.string().min(1), quantity: z.number().int().min(1).max(20) })).min(1).max(50),
+});
+
+export async function POST(req: Request) {
+  if (!isTrustedAppRequest(req)) return NextResponse.json({ error: 'Origen no autorizado' }, { status: 403, headers: privateApiHeaders() });
+  if (process.env.NODE_ENV === 'production') return NextResponse.json({ error: 'Los pagos aún no están disponibles.' }, { status: 503, headers: privateApiHeaders() });
+  try {
+    const data = input.parse(await req.json());
+    const quantities = new Map<string, number>();
+    for (const item of data.items) quantities.set(item.productId, (quantities.get(item.productId) ?? 0) + item.quantity);
+    if ([...quantities.values()].some((quantity) => quantity > 20)) throw new Error('Cantidad inválida');
+    const products = await prisma.product.findMany({
+      where: { id: { in: [...quantities.keys()] }, status: 'ACTIVE', requiresQuote: false, category: { isActive: true } },
+    });
+    if (products.length !== quantities.size) throw new Error('Producto no disponible');
+    const items = products.map((product) => {
+      const quantity = quantities.get(product.id)!;
+      const price = Number(product.price);
+      if (product.stock < quantity || !Number.isFinite(price) || price <= 0) throw new Error('Producto no disponible');
+      return { productId: product.id, name: product.name, price, quantity, total: price * quantity };
+    });
+    const subtotal = items.reduce((sum, item) => sum + item.total, 0);
+    const shippingCost = calculateShipping(subtotal);
+    const order = await prisma.order.create({
+      data: {
+        orderNumber: generateOrderNumber(), email: data.email, phone: data.phone,
+        shippingAddress: data.shippingAddress, subtotal, shippingCost, total: subtotal + shippingCost,
+        items: { create: items },
+      },
+    });
+    return NextResponse.json({ id: order.id, orderNumber: order.orderNumber, status: order.status, total: Number(order.total), currency: order.currency }, { status: 201, headers: privateApiHeaders() });
+  } catch (error) {
+    console.error('No fue posible crear el pedido:', error);
+    return NextResponse.json({ error: 'No fue posible crear el pedido. Revisa productos, inventario y datos.' }, { status: 400, headers: privateApiHeaders() });
+  }
+}
