@@ -20,7 +20,8 @@ const input = z.object({
 
 export async function POST(req: Request) {
   if (!isTrustedAppRequest(req)) return NextResponse.json({ error: 'Origen no autorizado' }, { status: 403, headers: privateApiHeaders() });
-  if (process.env.NODE_ENV === 'production') return NextResponse.json({ error: 'Los pagos aún no están disponibles.' }, { status: 503, headers: privateApiHeaders() });
+  // Keep live charges disabled until the complete ePayco sandbox flow is verified.
+  if (process.env.EPAYCO_TEST_MODE !== 'true') return NextResponse.json({ error: 'Los pagos están disponibles únicamente en modo de prueba.' }, { status: 503, headers: privateApiHeaders() });
   try {
     const data = input.parse(await req.json());
     const quantities = new Map<string, number>();

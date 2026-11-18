@@ -34,7 +34,5 @@ export function isValidEpaycoConfirmation(data: EpaycoConfirmation): boolean {
 }
 
 export function epaycoPaymentStatus(data: EpaycoConfirmation) {
-  // ePayco code 1 is approved. Every other result remains non-approved until
-  // the order is reconciled in the database.
-  return data.x_cod_response === '1' ? 'APPROVED' : 'PENDING';
+  return ({ '1': 'APPROVED', '2': 'REJECTED', '3': 'PENDING', '4': 'FAILED' } as const)[data.x_cod_response as '1' | '2' | '3' | '4'];
 }

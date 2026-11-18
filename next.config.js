@@ -50,7 +50,7 @@ const nextConfig = {
     return [{
       source: '/:path*',
       headers: [
-        { key: 'Content-Security-Policy', value: `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data: blob: ${supabaseCspSources} https://images.unsplash.com https://via.placeholder.com; script-src 'self' 'unsafe-inline' https://checkout.epayco.co https://*.epayco.co; style-src 'self' 'unsafe-inline'; connect-src 'self' ${supabaseCspSources} https://*.epayco.co; frame-src 'self' https://checkout.epayco.co https://*.epayco.co; upgrade-insecure-requests` },
+        { key: 'Content-Security-Policy', value: `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self' https://*.epayco.co; img-src 'self' data: blob: ${supabaseCspSources} https://images.unsplash.com https://via.placeholder.com; script-src 'self' 'unsafe-inline' https://checkout.epayco.co https://*.epayco.co; style-src 'self' 'unsafe-inline'; connect-src 'self' ${supabaseCspSources} https://*.epayco.co; frame-src 'self' https://checkout.epayco.co https://*.epayco.co; upgrade-insecure-requests` },
         { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
         { key: 'X-Content-Type-Options', value: 'nosniff' },
         { key: 'X-Frame-Options', value: 'SAMEORIGIN' },

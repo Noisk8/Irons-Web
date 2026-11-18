@@ -3,7 +3,9 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import Script from 'next/script';
+
+declare global { interface Window { ePayco?: { checkout: { configure: (options: { sessionId: string; type: string; test: boolean }) => { open: () => void } } } } }
 import { ArrowLeft, LockKeyhole } from 'lucide-react';
 import { useCartStore } from '@/store/cart';
 import { calculateShipping } from '@/lib/commerce';
@@ -17,8 +19,7 @@ type OrderResponse = {
 };
 
 export function CheckoutForm() {
-  const router = useRouter();
-  const { items, getSubtotal, clearCart } = useCartStore();
+  const { items, getSubtotal } = useCartStore();
   const subtotal = getSubtotal();
   const shipping = calculateShipping(subtotal);
   const total = subtotal + shipping;
@@ -34,6 +35,7 @@ export function CheckoutForm() {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!items.length || requiresQuote) return;
+    if (!window.ePayco) { setError('No se pudo cargar ePayco. Revisa tu conexión e inténtalo de nuevo.'); return; }
     setError('');
     setIsSubmitting(true);
     const form = new FormData(event.currentTarget);
@@ -64,18 +66,13 @@ export function CheckoutForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId: order.id, amount: order.total, currency: order.currency }),
       });
-      const payment = (await paymentResponse.json()) as { reference?: string; error?: string };
-      if (!paymentResponse.ok || !payment.reference) {
+      const payment = (await paymentResponse.json()) as { sessionId?: string; test?: boolean; error?: string };
+      if (!paymentResponse.ok || !payment.sessionId || typeof payment.test !== 'boolean') {
         throw new Error(payment.error || 'El pedido fue creado, pero no se pudo preparar el pago.');
       }
 
-      clearCart();
-      const query = new URLSearchParams({
-        order: order.orderNumber,
-        reference: payment.reference,
-        total: String(order.total),
-      });
-      router.push(`/pago/pendiente?${query.toString()}`);
+      if (!window.ePayco) throw new Error('No se pudo cargar ePayco. Revisa tu conexión e inténtalo de nuevo.');
+      window.ePayco.checkout.configure({ sessionId: payment.sessionId, type: 'standard', test: payment.test }).open();
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Ocurrió un error inesperado.');
     } finally {
@@ -100,6 +97,8 @@ export function CheckoutForm() {
   }
 
   return (
+    <>
+    <Script src="https://checkout.epayco.co/checkout-v2.js" strategy="afterInteractive" />
     <form onSubmit={submit} className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-12">
       <section className="rounded-2xl border bg-white p-5 shadow-sm sm:p-8">
         <Link href="/carrito" className="inline-flex items-center gap-2 text-sm text-irons-metal-medium hover:text-irons-charcoal">
@@ -143,8 +142,9 @@ export function CheckoutForm() {
           <LockKeyhole className="h-4 w-4" aria-hidden="true" />
           {isSubmitting ? 'Creando pedido…' : 'Continuar al pago'}
         </button>
-        <p className="mt-4 text-center text-xs leading-5 text-stone-400">No se realizará ningún cobro hasta conectar la pasarela de pagos.</p>
+        <p className="mt-4 text-center text-xs leading-5 text-stone-400">Serás dirigido a ePayco para completar tu pago.</p>
       </aside>
     </form>
+    </>
   );
 }
