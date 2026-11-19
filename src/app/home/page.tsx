@@ -14,6 +14,8 @@ const spaces = [
   { name: 'Jardín', description: 'Soluciones resistentes para exterior.', icon: Leaf, category: 'decoracion-exterior' },
 ];
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomeCollectionPage() {
   const homeProducts = (await getCatalogProducts()).filter(isHomeProduct);
 
