@@ -2,19 +2,11 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import prisma from '@/lib/prisma';
 import { calculateShipping } from '@/lib/commerce';
+import { checkoutDetailsSchema, checkoutFieldErrors } from '@/lib/checkout-validation';
 import { generateOrderNumber } from '@/lib/utils';
 import { isTrustedAppRequest, privateApiHeaders } from '@/lib/request-security';
 
-const input = z.object({
-  email: z.string().trim().email().max(254),
-  phone: z.string().trim().min(1).max(50),
-  shippingAddress: z.object({
-    name: z.string().trim().min(1).max(200),
-    address: z.string().trim().min(1).max(300),
-    city: z.string().trim().min(1).max(100),
-    department: z.string().trim().min(1).max(100),
-    notes: z.string().trim().max(1000).optional(),
-  }),
+const input = checkoutDetailsSchema.extend({
   items: z.array(z.object({ productId: z.string().min(1), quantity: z.number().int().min(1).max(20) })).min(1).max(50),
 });
 
@@ -48,6 +40,7 @@ export async function POST(req: Request) {
     });
     return NextResponse.json({ id: order.id, orderNumber: order.orderNumber, status: order.status, total: Number(order.total), currency: order.currency }, { status: 201, headers: privateApiHeaders() });
   } catch (error) {
+    if (error instanceof z.ZodError) return NextResponse.json({ error: 'Revisa los campos indicados.', fieldErrors: checkoutFieldErrors(error) }, { status: 400, headers: privateApiHeaders() });
     console.error('No fue posible crear el pedido:', error);
     return NextResponse.json({ error: 'No fue posible crear el pedido. Revisa productos, inventario y datos.' }, { status: 400, headers: privateApiHeaders() });
   }

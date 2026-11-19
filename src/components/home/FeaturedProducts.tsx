@@ -11,139 +11,17 @@ import { cn, formatPrice } from '@/lib/utils';
 import { useCartStore } from '@/store/cart';
 import { useToast } from '@/hooks/use-toast';
 
-const demoProducts = [
-  {
-    id: 'p1',
-    slug: 'repisa-dispensadora-mural',
-    name: 'Repisa metálica negra para baño',
-    shortDescription: 'Soporte elegante para dispensadores y accesorios',
-    price: 185000,
-    compareAtPrice: 220000,
-    category: 'Muebles y soportes',
-    image: '/productos/repisa-dispensadora-mural.png',
-    images: ['/productos/repisa-dispensadora-mural.png'],
-    tags: ['Nuevo', 'Más vendido'],
-    status: 'ACTIVE',
-    isCustomizable: true,
-    requiresQuote: false,
-    stock: 15,
-  },
-  {
-    id: 'p2',
-    slug: 'panel-arbol-de-luz',
-    name: 'Panel decorativo Árbol de Luz',
-    shortDescription: 'Silueta de árbol con luz cálida integrada',
-    price: 420000,
-    compareAtPrice: null,
-    category: 'Decoración interior',
-    image: '/productos/panel-decorativo-arbol-de-luz.png',
-    images: ['/productos/panel-decorativo-arbol-de-luz.png'],
-    tags: ['Hecho bajo pedido'],
-    status: 'MADE_TO_ORDER',
-    isCustomizable: true,
-    requiresQuote: true,
-    stock: 0,
-  },
-  {
-    id: 'p3',
-    slug: 'lampara-mural-geometrica',
-    name: 'Lámpara mural geométrica',
-    shortDescription: 'Formas escultóricas que juegan con la luz',
-    price: 350000,
-    compareAtPrice: 390000,
-    category: 'Iluminación',
-    image: '/productos/lampara-mural-geometrica.png',
-    images: ['/productos/lampara-mural-geometrica.png'],
-    tags: ['Nuevo'],
-    status: 'ACTIVE',
-    isCustomizable: false,
-    requiresQuote: false,
-    stock: 8,
-  },
-  {
-    id: 'p6',
-    slug: 'soporte-mural-toallas',
-    name: 'Soporte mural para toallas',
-    shortDescription: 'Diseño minimalista para baño u oficina',
-    price: 125000,
-    compareAtPrice: null,
-    category: 'Accesorios',
-    image: '/productos/soporte-mural-toallas.png',
-    images: ['/productos/soporte-mural-toallas.png'],
-    tags: ['Más vendido'],
-    status: 'ACTIVE',
-    isCustomizable: false,
-    requiresQuote: false,
-    stock: 25,
-  },
-  {
-    id: 'p5',
-    slug: 'organizador-jardin',
-    name: 'Organizador mural para jardín',
-    shortDescription: 'Sistema mural resistente para mantener herramientas ordenadas',
-    price: 245000,
-    compareAtPrice: null,
-    category: 'Decoración exterior',
-    image: '/productos/organizador-mural-jardin.png',
-    images: ['/productos/organizador-mural-jardin.png'],
-    tags: ['Personalizable'],
-    status: 'ACTIVE',
-    isCustomizable: true,
-    requiresQuote: false,
-    stock: 5,
-  },
-  {
-    id: 'p4',
-    slug: 'mesa-auxiliar-vinyl-stand',
-    name: 'Mesa auxiliar Vinyl Stand',
-    shortDescription: 'Mesa auxiliar con espacio para discos y objetos decorativos',
-    price: 490000,
-    compareAtPrice: null,
-    category: 'Muebles y soportes',
-    image: '/productos/mesa-auxiliar-vinyl-stand.png',
-    images: ['/productos/mesa-auxiliar-vinyl-stand.png'],
-    tags: ['Nuevo'],
-    status: 'ACTIVE',
-    isCustomizable: true,
-    requiresQuote: false,
-    stock: 12,
-  },
-  {
-    id: 'p7',
-    slug: 'panel-luz-de-hoja',
-    name: 'Panel Botánico Luz de Hoja',
-    shortDescription: 'Panel decorativo retroiluminado de diseño botánico',
-    price: 0,
-    compareAtPrice: null,
-    category: 'Decoración interior',
-    image: '/productos/panel-luz-de-hoja.png',
-    images: ['/productos/panel-luz-de-hoja.png'],
-    tags: ['Hecho bajo pedido'],
-    status: 'MADE_TO_ORDER',
-    isCustomizable: true,
-    requiresQuote: true,
-    stock: 0,
-  },
-  {
-    id: 'p8',
-    slug: 'panel-geometrico-arco',
-    name: 'Panel Geométrico Arco',
-    shortDescription: 'Panel decorativo retroiluminado de geometría Art Déco',
-    price: 0,
-    compareAtPrice: null,
-    category: 'Paneles',
-    image: '/productos/panel-geometrico-arco.png',
-    images: ['/productos/panel-geometrico-arco.png'],
-    tags: ['Hecho bajo pedido'],
-    status: 'REQUIRES_QUOTE',
-    isCustomizable: true,
-    requiresQuote: true,
-    stock: 0,
-  },
-];
+import type { DemoProduct } from '@/data/products';
+
+interface FeaturedProduct extends DemoProduct {
+  status: string;
+  tags: string[];
+  shortDescription: string;
+  isCustomizable: boolean;
+}
 
 interface ProductCardProps {
-  product: typeof demoProducts[0];
+  product: FeaturedProduct;
   index: number;
 }
 
@@ -278,7 +156,7 @@ function ProductCard({ product, index }: ProductCardProps) {
           <div className="flex items-center justify-between pt-2 border-t border-irons-stone-gray">
             <div className="flex items-baseline gap-2">
               <span className="text-xl font-display font-bold text-irons-charcoal">
-                {formatPrice(product.price)}
+                {product.requiresQuote ? 'Precio según proyecto' : formatPrice(product.price)}
               </span>
               {product.compareAtPrice && (
                 <span className="text-sm text-irons-metal-light line-through">
@@ -291,7 +169,7 @@ function ProductCard({ product, index }: ProductCardProps) {
               variant={product.requiresQuote || product.status === 'REQUIRES_QUOTE' ? 'irons-outline' : 'irons'}
               size="sm"
               className="h-9 px-3"
-              disabled={product.status === 'OUT_OF_STOCK' || product.stock <= 0}
+              disabled={!product.requiresQuote && (product.status === 'OUT_OF_STOCK' || product.stock <= 0)}
               onClick={handleAddToCart}
               aria-label={product.requiresQuote ? `Solicitar cotización para ${product.name}` : `Agregar ${product.name} al carrito`}
             >
@@ -316,7 +194,11 @@ function ProductCard({ product, index }: ProductCardProps) {
   );
 }
 
-export function FeaturedProducts() {
+export function FeaturedProducts({ products }: { products: DemoProduct[] }) {
+  const featuredProducts: FeaturedProduct[] = products.filter((product) => product.featured).map((product) => ({
+    ...product, shortDescription: product.description, isCustomizable: product.customizable,
+    tags: [], status: product.requiresQuote ? 'REQUIRES_QUOTE' : product.stock <= 0 ? 'OUT_OF_STOCK' : 'ACTIVE',
+  }));
   return (
     <section className="py-16 lg:py-24 bg-irons-stone-gray/30" aria-labelledby="featured-title">
       <div className="container mx-auto px-4">
@@ -337,7 +219,7 @@ export function FeaturedProducts() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {demoProducts.map((product, index) => (
+          {featuredProducts.map((product, index) => (
             <ProductCard key={product.id} product={product} index={index} />
           ))}
         </div>

@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { getCatalogProducts } from '@/lib/catalog';
 import { Layout } from '@/components/layout';
 import { Hero } from '@/components/home/Hero';
 import { Categories } from '@/components/home/Categories';
@@ -37,12 +38,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function HomePage() {
+export const dynamic = 'force-dynamic';
+
+export default async function HomePage() {
+  const products = await getCatalogProducts();
   return (
     <Layout>
       <Hero />
       {/* <Categories /> */}
-      <FeaturedProducts />
+      <FeaturedProducts products={products} />
       <CustomPiece />
       {/* <Projects /> */}
       <Process />

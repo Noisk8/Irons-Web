@@ -1,9 +1,7 @@
 import type { DemoProduct } from '@/data/products';
-import { products as fallbackProducts } from '@/data/products';
 import prisma from '@/lib/prisma';
 
 export async function getCatalogProducts(): Promise<DemoProduct[]> {
-  try {
     const rows = await prisma.product.findMany({
       where: {
         status: { in: ['ACTIVE', 'MADE_TO_ORDER', 'REQUIRES_QUOTE', 'OUT_OF_STOCK'] },
@@ -32,16 +30,12 @@ export async function getCatalogProducts(): Promise<DemoProduct[]> {
       dimensions: p.dimensions || 'A medida',
       usage: p.usage || 'Interior',
       productionTime: p.productionTime || 'Bajo pedido',
-      stock: p.stock,
+      stock: p.status === 'OUT_OF_STOCK' ? 0 : p.stock,
       customizable: p.isCustomizable,
-      requiresQuote: p.requiresQuote,
+      requiresQuote: p.requiresQuote || p.status === 'REQUIRES_QUOTE',
       featured: p.featured,
     }));
-    const databaseSlugs = new Set(databaseProducts.map((p) => p.slug));
-    return [...databaseProducts, ...fallbackProducts.filter((p) => !databaseSlugs.has(p.slug))];
-  } catch {
-    return fallbackProducts;
-  }
+    return databaseProducts;
 }
 
 export async function getCatalogProduct(slug: string) {

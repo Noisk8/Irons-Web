@@ -6,7 +6,6 @@ import { Layout } from '@/components/layout';
 import { ProductActions } from '@/components/shop/ProductActions';
 import { ProductCard } from '@/components/shop/ProductCard';
 import { ProductGallery } from '@/components/shop/ProductGallery';
-import { products } from '@/data/products';
 import { getCatalogProduct, getCatalogProducts } from '@/lib/catalog';
 import { formatPrice, getWhatsAppUrl } from '@/lib/utils';
 
@@ -21,9 +20,7 @@ const legacyProductSlugs: Record<string, string> = {
   'lampara-decorativa-restaurante': 'lampara-mural-geometrica',
 };
 
-export function generateStaticParams() {
-  return products.map((product) => ({ slug: product.slug }));
-}
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({
   params,

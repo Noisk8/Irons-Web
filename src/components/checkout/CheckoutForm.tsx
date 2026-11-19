@@ -10,6 +10,8 @@ import { ArrowLeft, LockKeyhole } from 'lucide-react';
 import { useCartStore } from '@/store/cart';
 import { calculateShipping } from '@/lib/commerce';
 import { formatPrice } from '@/lib/utils';
+import { colombiaLocations } from '@/lib/colombia-locations';
+import { checkoutDetailsSchema, checkoutFieldErrors, type CheckoutErrors, type CheckoutField } from '@/lib/checkout-validation';
 
 type OrderResponse = {
   id: string;
@@ -24,6 +26,10 @@ export function CheckoutForm() {
   const shipping = calculateShipping(subtotal);
   const total = subtotal + shipping;
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<CheckoutErrors>({});
+  const [department, setDepartment] = useState('');
+  const [city, setCity] = useState('');
+  const cities = colombiaLocations.find((entry) => entry.name === department)?.cities ?? [];
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCartReady, setIsCartReady] = useState(false);
   useEffect(() => {
@@ -35,10 +41,9 @@ export function CheckoutForm() {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!items.length || requiresQuote) return;
-    if (!window.ePayco) { setError('No se pudo cargar ePayco. Revisa tu conexión e inténtalo de nuevo.'); return; }
     setError('');
-    setIsSubmitting(true);
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const shippingAddress = {
       name: String(form.get('name') || ''),
       address: String(form.get('address') || ''),
@@ -46,20 +51,33 @@ export function CheckoutForm() {
       department: String(form.get('department') || ''),
       notes: String(form.get('notes') || ''),
     };
+    const details = { email: String(form.get('email') || ''), phone: String(form.get('phone') || ''), shippingAddress };
+    const validation = checkoutDetailsSchema.safeParse(details);
+    if (!validation.success) {
+      const errors = checkoutFieldErrors(validation.error);
+      setFieldErrors(errors);
+      const first = (['name', 'email', 'phone', 'address', 'department', 'city', 'notes'] as CheckoutField[]).find((field) => errors[field]);
+      if (first) formElement.elements.namedItem(first) instanceof HTMLElement && (formElement.elements.namedItem(first) as HTMLElement).focus();
+      return;
+    }
+    setFieldErrors({});
+    if (!window.ePayco) { setError('No se pudo cargar ePayco. Revisa tu conexión e inténtalo de nuevo.'); return; }
+    setIsSubmitting(true);
 
     try {
       const orderResponse = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: form.get('email'),
-          phone: form.get('phone'),
-          shippingAddress,
+          ...validation.data,
           items: items.map((item) => ({ productId: item.productId, quantity: item.quantity })),
         }),
       });
-      const order = (await orderResponse.json()) as OrderResponse & { error?: string };
-      if (!orderResponse.ok) throw new Error(order.error || 'No fue posible crear el pedido.');
+      const order = (await orderResponse.json()) as OrderResponse & { error?: string; fieldErrors?: CheckoutErrors };
+      if (!orderResponse.ok) {
+        if (order.fieldErrors) setFieldErrors(order.fieldErrors);
+        throw new Error(order.error || 'No fue posible crear el pedido.');
+      }
 
       const paymentResponse = await fetch('/api/payments/create', {
         method: 'POST',
@@ -99,30 +117,52 @@ export function CheckoutForm() {
   return (
     <>
     <Script src="https://checkout.epayco.co/checkout-v2.js" strategy="afterInteractive" />
-    <form onSubmit={submit} className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-12">
+    <form noValidate onSubmit={submit} onChange={(event) => {
+      const target = event.target as EventTarget;
+      if (!(target instanceof HTMLInputElement || target instanceof HTMLSelectElement || target instanceof HTMLTextAreaElement)) return;
+      const field = target.name as CheckoutField;
+      setFieldErrors((current) => {
+        if (!current[field] && !(field === 'department' && current.city)) return current;
+        const next = { ...current };
+        delete next[field];
+        if (field === 'department') delete next.city;
+        return next;
+      });
+    }} className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-12">
       <section className="rounded-2xl border bg-white p-5 shadow-sm sm:p-8">
         <Link href="/carrito" className="inline-flex items-center gap-2 text-sm text-irons-metal-medium hover:text-irons-charcoal">
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Volver al carrito
         </Link>
         <h1 className="mt-6 font-display text-3xl font-bold sm:text-4xl">Datos de entrega</h1>
-        <p className="mt-2 text-sm text-irons-metal-medium">Confirma tus datos para registrar el pedido.</p>
+        <p className="mt-2 text-sm text-irons-metal-medium">Confirma tus datos para registrar el pedido. Los campos marcados con * son obligatorios.</p>
 
         {requiresQuote && (
           <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
             Hay productos que requieren cotización. Retíralos del carrito o solicítalos desde su ficha antes de continuar.
           </div>
         )}
-        {error && <p className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</p>}
+        {Object.keys(fieldErrors).length > 0 && <p role="alert" className="mt-6 text-sm text-red-700">Revisa los campos indicados.</p>}
+        {error && <p role="alert" className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</p>}
 
         <div className="mt-8 grid gap-5 sm:grid-cols-2">
-          <label className="text-sm font-medium sm:col-span-2">Nombre completo<input required name="name" autoComplete="name" className="mt-2 h-12 w-full rounded-md border px-3" /></label>
-          <label className="text-sm font-medium">Correo electrónico<input required type="email" name="email" autoComplete="email" className="mt-2 h-12 w-full rounded-md border px-3" /></label>
-          <label className="text-sm font-medium">Teléfono o WhatsApp<input required name="phone" inputMode="tel" autoComplete="tel" className="mt-2 h-12 w-full rounded-md border px-3" /></label>
-          <label className="text-sm font-medium sm:col-span-2">Dirección de entrega<input required name="address" autoComplete="street-address" className="mt-2 h-12 w-full rounded-md border px-3" /></label>
-          <label className="text-sm font-medium">Ciudad<input required name="city" autoComplete="address-level2" className="mt-2 h-12 w-full rounded-md border px-3" /></label>
-          <label className="text-sm font-medium">Departamento<input required name="department" autoComplete="address-level1" className="mt-2 h-12 w-full rounded-md border px-3" /></label>
-          <label className="text-sm font-medium sm:col-span-2">Indicaciones de entrega <span className="font-normal text-irons-metal-light">(opcional)</span><textarea name="notes" rows={3} className="mt-2 w-full rounded-md border p-3" /></label>
+          <label className="text-sm font-medium sm:col-span-2">Nombre completo *<input required name="name" autoComplete="name" maxLength={200} aria-invalid={!!fieldErrors.name} aria-describedby={fieldErrors.name ? 'name-error' : undefined} className="mt-2 h-12 w-full rounded-md border px-3 aria-invalid:border-red-600" />{fieldErrors.name && <span id="name-error" className="mt-1 block text-sm text-red-700">{fieldErrors.name}</span>}</label>
+          <label className="text-sm font-medium">Correo electrónico *<input required type="email" name="email" autoComplete="email" maxLength={254} aria-invalid={!!fieldErrors.email} aria-describedby={fieldErrors.email ? 'email-error' : undefined} className="mt-2 h-12 w-full rounded-md border px-3 aria-invalid:border-red-600" />{fieldErrors.email && <span id="email-error" className="mt-1 block text-sm text-red-700">{fieldErrors.email}</span>}</label>
+          <label className="text-sm font-medium">Celular o WhatsApp *<input required type="tel" name="phone" inputMode="numeric" autoComplete="tel-national" maxLength={10} placeholder="3001234567" aria-invalid={!!fieldErrors.phone} aria-describedby={fieldErrors.phone ? 'phone-error' : 'phone-help'} className="mt-2 h-12 w-full rounded-md border px-3 aria-invalid:border-red-600" /><span id="phone-help" className="mt-1 block text-xs font-normal text-irons-metal-medium">10 dígitos, empieza por 3.</span>{fieldErrors.phone && <span id="phone-error" className="mt-1 block text-sm text-red-700">{fieldErrors.phone}</span>}</label>
+          <label className="text-sm font-medium sm:col-span-2">Dirección de entrega *<input required name="address" autoComplete="street-address" maxLength={300} aria-invalid={!!fieldErrors.address} aria-describedby={fieldErrors.address ? 'address-error' : undefined} className="mt-2 h-12 w-full rounded-md border px-3 aria-invalid:border-red-600" />{fieldErrors.address && <span id="address-error" className="mt-1 block text-sm text-red-700">{fieldErrors.address}</span>}</label>
+          <label className="text-sm font-medium">Departamento *
+            <select required name="department" autoComplete="address-level1" value={department} onChange={(event) => { setDepartment(event.target.value); setCity(''); }} aria-invalid={!!fieldErrors.department} aria-describedby={fieldErrors.department ? 'department-error' : undefined} className="mt-2 h-12 w-full rounded-md border bg-white px-3 aria-invalid:border-red-600">
+              <option value="">Selecciona un departamento</option>
+              {colombiaLocations.map((entry) => <option key={entry.name} value={entry.name}>{entry.name}</option>)}
+            </select>{fieldErrors.department && <span id="department-error" className="mt-1 block text-sm text-red-700">{fieldErrors.department}</span>}
+          </label>
+          <label className="text-sm font-medium">Municipio o ciudad *
+            <select required name="city" autoComplete="address-level2" value={city} onChange={(event) => setCity(event.target.value)} disabled={!department} aria-invalid={!!fieldErrors.city} aria-describedby={fieldErrors.city ? 'city-error' : undefined} className="mt-2 h-12 w-full rounded-md border bg-white px-3 aria-invalid:border-red-600 disabled:bg-stone-100">
+              <option value="">{department ? 'Selecciona un municipio' : 'Selecciona primero un departamento'}</option>
+              {cities.map((name) => <option key={name} value={name}>{name}</option>)}
+            </select>{fieldErrors.city && <span id="city-error" className="mt-1 block text-sm text-red-700">{fieldErrors.city}</span>}
+          </label>
+          <label className="text-sm font-medium sm:col-span-2">Indicaciones de entrega <span className="font-normal text-irons-metal-light">(opcional)</span><textarea name="notes" rows={3} maxLength={1000} aria-invalid={!!fieldErrors.notes} aria-describedby={fieldErrors.notes ? 'notes-error' : undefined} className="mt-2 w-full rounded-md border p-3 aria-invalid:border-red-600" />{fieldErrors.notes && <span id="notes-error" className="mt-1 block text-sm text-red-700">{fieldErrors.notes}</span>}</label>
         </div>
       </section>
 
