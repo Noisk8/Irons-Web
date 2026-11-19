@@ -79,6 +79,8 @@ export function ProductsManager() {
   const [editing, setEditing] = useState<string | null>(null);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
+  const [publishing, setPublishing] = useState<string | null>(null);
+  const [publishMessage, setPublishMessage] = useState('');
   async function load() {
     const [p, c] = await Promise.all([
       fetch('/api/admin/products'),
@@ -165,6 +167,21 @@ export function ProductsManager() {
     setEditing(null);
     setMessage(editing ? 'Producto actualizado.' : 'Producto creado.');
     await load();
+  }
+  async function publish(product: Product) {
+    setPublishing(product.id);
+    setPublishMessage('');
+    try {
+      const response = await fetch(`/api/admin/products/${product.id}`, { method: 'PATCH' });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'No fue posible publicar el producto.');
+      setPublishMessage(`${product.name}: publicado${data.status === 'REQUIRES_QUOTE' ? ' para cotización' : data.status === 'OUT_OF_STOCK' ? ' como agotado' : ''}.`);
+      await load();
+    } catch (error) {
+      setPublishMessage(error instanceof Error ? error.message : 'No fue posible publicar el producto.');
+    } finally {
+      setPublishing(null);
+    }
   }
   async function remove(id: string) {
     if (!confirm('¿Eliminar este producto definitivamente?')) return;
@@ -346,6 +363,7 @@ export function ProductsManager() {
       <section className="overflow-hidden rounded-2xl border bg-white">
         <div className="border-b p-5">
           <h2 className="text-xl font-semibold">Catálogo ({products.length})</h2>
+          {publishMessage && <p role="status" className="mt-2 text-sm text-stone-700">{publishMessage}</p>}
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-left text-sm">
@@ -371,6 +389,9 @@ export function ProductsManager() {
                   <td>{p.stock}</td>
                   <td>{p.status}</td>
                   <td className="space-x-3 text-right">
+                    {p.status === 'DRAFT' && <button type="button" disabled={publishing !== null} onClick={() => void publish(p)} className="font-medium text-green-700 disabled:opacity-50" aria-label={`Publicar ${p.name}`}>
+                      {publishing === p.id ? 'Publicando…' : 'Publicar'}
+                    </button>}
                     <button onClick={() => edit(p)} className="text-amber-700">
                       Editar
                     </button>

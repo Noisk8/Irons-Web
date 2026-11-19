@@ -3,6 +3,7 @@ import { ProductStatus } from '@prisma/client';
 import { z } from 'zod';
 import prisma from '@/lib/prisma';
 import { requireAdminApi } from '@/lib/admin-api';
+import { isTrustedAppRequest } from '@/lib/request-security';
 const updateInput = z.object({
   name: z.string().trim().min(2).max(100),
   slug: z.string().trim().max(100).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
@@ -51,6 +52,25 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json(result);
   } catch {
     return NextResponse.json({ error: 'No fue posible actualizar el producto.' }, { status: 400 });
+  }
+}
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const denied = await requireAdminApi();
+  if (denied) return denied;
+  if (!isTrustedAppRequest(request)) return NextResponse.json({ error: 'Origen no autorizado' }, { status: 403 });
+  try {
+    const { id } = await params;
+    const product = await prisma.product.findUnique({ where: { id }, include: { category: true } });
+    if (!product) return NextResponse.json({ error: 'Producto no encontrado.' }, { status: 404 });
+    if (product.status !== 'DRAFT') return NextResponse.json({ error: 'El producto ya no está en borrador. Actualiza la página.' }, { status: 409 });
+    if (!product.category.isActive) return NextResponse.json({ error: 'Activa la categoría antes de publicar el producto.' }, { status: 400 });
+    if (!product.requiresQuote && product.stock > 0 && product.price.lte(0)) return NextResponse.json({ error: 'Ingresa un precio mayor que cero antes de publicar.' }, { status: 400 });
+    const status = product.requiresQuote ? ProductStatus.REQUIRES_QUOTE : product.stock > 0 ? ProductStatus.ACTIVE : ProductStatus.OUT_OF_STOCK;
+    const result = await prisma.product.updateMany({ where: { id, status: 'DRAFT', stock: product.stock, requiresQuote: product.requiresQuote, price: product.price, categoryId: product.categoryId, category: { isActive: true } }, data: { status } });
+    if (!result.count) return NextResponse.json({ error: 'El producto cambió. Actualiza la página y vuelve a intentarlo.' }, { status: 409 });
+    return NextResponse.json({ status });
+  } catch {
+    return NextResponse.json({ error: 'No fue posible publicar el producto.' }, { status: 500 });
   }
 }
 export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
