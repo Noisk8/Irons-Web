@@ -33,6 +33,16 @@ export function isValidEpaycoConfirmation(data: EpaycoConfirmation): boolean {
   return expected.length === received.length && timingSafeEqual(expected, received);
 }
 
-export function epaycoPaymentStatus(data: EpaycoConfirmation) {
-  return ({ '1': 'APPROVED', '2': 'REJECTED', '3': 'PENDING', '4': 'FAILED' } as const)[data.x_cod_response as '1' | '2' | '3' | '4'];
+export type EpaycoPaymentStatus = 'APPROVED' | 'REJECTED' | 'PENDING' | 'FAILED' | 'REFUNDED';
+
+const statusByCode: Record<string, EpaycoPaymentStatus> = { '1': 'APPROVED', '2': 'REJECTED', '3': 'PENDING', '4': 'FAILED', '6': 'REFUNDED' };
+const statusByText: Record<string, EpaycoPaymentStatus> = {
+  aceptada: 'APPROVED', rechazada: 'REJECTED', pendiente: 'PENDING', iniciada: 'PENDING',
+  fallida: 'FAILED', expirada: 'FAILED', abandonada: 'FAILED', cancelada: 'FAILED', reversada: 'REFUNDED',
+};
+
+export function epaycoPaymentStatus(data: EpaycoConfirmation): EpaycoPaymentStatus | undefined {
+  const text = data.x_response?.trim().toLowerCase();
+  if (text && statusByText[text]) return statusByText[text];
+  return data.x_cod_response ? statusByCode[data.x_cod_response] : undefined;
 }

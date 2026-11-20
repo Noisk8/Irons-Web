@@ -20,7 +20,7 @@ export default async function AdminPage() {
   const cards = [
     { label: 'Productos', value: products, icon: Package, href: '/admin/productos' },
     { label: 'Categorías', value: categories, icon: Tags, href: '/admin/categorias' },
-    { label: 'Pedidos', value: orders, icon: ShoppingBag, href: '/admin' },
+    { label: 'Pedidos', value: orders, icon: ShoppingBag, href: '/admin/pedidos' },
     { label: 'Cotizaciones', value: quotes, icon: FileText, href: '/admin/cotizaciones' },
   ];
   return (

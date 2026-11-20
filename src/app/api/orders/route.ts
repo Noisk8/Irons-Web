@@ -5,6 +5,7 @@ import { calculateShipping } from '@/lib/commerce';
 import { checkoutDetailsSchema, checkoutFieldErrors } from '@/lib/checkout-validation';
 import { generateOrderNumber } from '@/lib/utils';
 import { isTrustedAppRequest, privateApiHeaders } from '@/lib/request-security';
+import { expireStaleOrders } from '@/lib/orders';
 
 const input = checkoutDetailsSchema.extend({
   items: z.array(z.object({ productId: z.string().min(1), quantity: z.number().int().min(1).max(20) })).min(1).max(50),
@@ -12,31 +13,39 @@ const input = checkoutDetailsSchema.extend({
 
 export async function POST(req: Request) {
   if (!isTrustedAppRequest(req)) return NextResponse.json({ error: 'Origen no autorizado' }, { status: 403, headers: privateApiHeaders() });
-  // Keep live charges disabled until the complete ePayco sandbox flow is verified.
-  if (process.env.EPAYCO_TEST_MODE !== 'true') return NextResponse.json({ error: 'Los pagos están disponibles únicamente en modo de prueba.' }, { status: 503, headers: privateApiHeaders() });
   try {
     const data = input.parse(await req.json());
     const quantities = new Map<string, number>();
     for (const item of data.items) quantities.set(item.productId, (quantities.get(item.productId) ?? 0) + item.quantity);
     if ([...quantities.values()].some((quantity) => quantity > 20)) throw new Error('Cantidad inválida');
-    const products = await prisma.product.findMany({
-      where: { id: { in: [...quantities.keys()] }, status: 'ACTIVE', requiresQuote: false, category: { isActive: true } },
-    });
-    if (products.length !== quantities.size) throw new Error('Producto no disponible');
-    const items = products.map((product) => {
-      const quantity = quantities.get(product.id)!;
-      const price = Number(product.price);
-      if (product.stock < quantity || !Number.isFinite(price) || price <= 0) throw new Error('Producto no disponible');
-      return { productId: product.id, name: product.name, price, quantity, total: price * quantity };
-    });
-    const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-    const shippingCost = calculateShipping(subtotal);
-    const order = await prisma.order.create({
-      data: {
-        orderNumber: generateOrderNumber(), email: data.email, phone: data.phone,
-        shippingAddress: data.shippingAddress, subtotal, shippingCost, total: subtotal + shippingCost,
-        items: { create: items },
-      },
+    await expireStaleOrders();
+    const order = await prisma.$transaction(async (tx) => {
+      const products = await tx.product.findMany({
+        where: { id: { in: [...quantities.keys()] }, status: 'ACTIVE', requiresQuote: false, category: { isActive: true } },
+      });
+      if (products.length !== quantities.size) throw new Error('Producto no disponible');
+      const items = products.map((product) => {
+        const quantity = quantities.get(product.id)!;
+        const price = Number(product.price);
+        if (product.stock < quantity || !Number.isFinite(price) || price <= 0) throw new Error('Producto no disponible');
+        return { productId: product.id, name: product.name, price, quantity, total: price * quantity };
+      });
+      for (const item of items) {
+        const reserved = await tx.product.updateMany({
+          where: { id: item.productId, stock: { gte: item.quantity } },
+          data: { stock: { decrement: item.quantity } },
+        });
+        if (reserved.count !== 1) throw new Error('Producto no disponible');
+      }
+      const subtotal = items.reduce((sum, item) => sum + item.total, 0);
+      const shippingCost = calculateShipping(subtotal);
+      return tx.order.create({
+        data: {
+          orderNumber: generateOrderNumber(), email: data.email, phone: data.phone,
+          shippingAddress: data.shippingAddress, subtotal, shippingCost, total: subtotal + shippingCost,
+          items: { create: items },
+        },
+      });
     });
     return NextResponse.json({ id: order.id, orderNumber: order.orderNumber, status: order.status, total: Number(order.total), currency: order.currency }, { status: 201, headers: privateApiHeaders() });
   } catch (error) {

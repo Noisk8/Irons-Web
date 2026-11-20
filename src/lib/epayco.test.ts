@@ -11,6 +11,14 @@ test('interpreta los estados de ePayco sin aprobar códigos desconocidos', () =>
   assert.equal(epaycoPaymentStatus({ x_cod_response: '99' }), undefined);
 });
 
+test('reconoce los estados por texto de respuesta, incluida la reversa', () => {
+  assert.equal(epaycoPaymentStatus({ x_response: 'Aceptada' }), 'APPROVED');
+  assert.equal(epaycoPaymentStatus({ x_response: 'Rechazada', x_cod_response: '2' }), 'REJECTED');
+  assert.equal(epaycoPaymentStatus({ x_response: 'Reversada' }), 'REFUNDED');
+  assert.equal(epaycoPaymentStatus({ x_response: 'Abandonada' }), 'FAILED');
+  assert.equal(epaycoPaymentStatus({ x_response: 'Desconocida' }), undefined);
+});
+
 test('acepta únicamente firmas correspondientes a la transacción', () => {
   const previousId = process.env.EPAYCO_P_CUST_ID_CLIENTE;
   const previousKey = process.env.EPAYCO_P_KEY;
