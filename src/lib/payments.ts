@@ -21,7 +21,7 @@ export async function createEpaycoSession(invoice: string, amount: number, curre
   const auth = z.object({ token: z.string().min(1) }).parse(await login.json());
   const response = await fetch('https://apify.epayco.co/payment/session/create', {
     method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${auth.token}` },
-    body: JSON.stringify({ checkout_version: '2', name: 'Irons', description: `Pedido ${invoice}`, currency, amount, Invoice: invoice, country: 'CO', lang: 'ES', response: settings.EPAYCO_RESPONSE_URL, confirmation: settings.EPAYCO_CONFIRMATION_URL, method: 'GET' }),
+    body: JSON.stringify({ checkout_version: '2', name: 'Irons', description: `Pedido ${invoice}`, currency, amount, invoice, country: 'CO', lang: 'ES', response: settings.EPAYCO_RESPONSE_URL, confirmation: settings.EPAYCO_CONFIRMATION_URL, method: 'GET' }),
     signal: AbortSignal.timeout(15000), cache: 'no-store',
   });
   if (!response.ok) throw new Error('No se pudo crear la sesión de ePayco');
