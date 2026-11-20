@@ -15,7 +15,7 @@ const services = [
     description:
       'Desarrollamos piezas desde una medida, un boceto o una necesidad concreta. Definimos material, acabado y sistema de instalación contigo.',
     href: '/disena-tu-pieza',
-    image: '/productos/mesa-auxiliar-vinyl-stand.png',
+    image: '/productos/mesa-auxiliar-vinyl-stand.webp',
     icon: DraftingCompass,
     action: 'Empezar un proyecto',
   },
@@ -24,7 +24,7 @@ const services = [
     description:
       'Personalización precisa de nombres, fechas, logos, seriales, placas y códigos QR para proyectos personales o corporativos.',
     href: '/grabado-laser',
-    image: '/productos/panel-decorativo-arbol-de-luz.png',
+    image: '/productos/panel-decorativo-arbol-de-luz.webp',
     icon: ScanLine,
     action: 'Cotizar un grabado',
   },

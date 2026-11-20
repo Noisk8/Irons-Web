@@ -23,7 +23,7 @@ export default function AboutPage() {
         </div>
         <div className="relative aspect-[4/5] overflow-hidden rounded-2xl">
           <Image
-            src="/productos/lampara-mural-geometrica.png"
+            src="/productos/lampara-mural-geometrica.webp"
             alt="Lámpara diseñada y fabricada por Irons"
             fill
             sizes="(max-width: 1024px) 100vw, 50vw"

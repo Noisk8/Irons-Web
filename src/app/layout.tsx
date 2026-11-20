@@ -52,13 +52,13 @@ export const metadata: Metadata = {
     title: 'Irons | Objetos con carácter. Diseñados para durar.',
     description:
       'Metalistería personalizada, grabado láser y decoración en metal para hogares y espacios comerciales.',
-    images: [{ url: '/productos/panel-decorativo-arbol-de-luz.png', alt: 'Irons - Metalistería y decoración personalizada' }],
+    images: [{ url: '/productos/panel-decorativo-arbol-de-luz.webp', alt: 'Irons - Metalistería y decoración personalizada' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Irons | Objetos con carácter',
     description: 'Metalistería personalizada y decoración en metal.',
-    images: ['/productos/panel-decorativo-arbol-de-luz.png'],
+    images: ['/productos/panel-decorativo-arbol-de-luz.webp'],
   },
   verification: {
     google: process.env.GOOGLE_SITE_VERIFICATION,

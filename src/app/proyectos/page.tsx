@@ -6,25 +6,25 @@ const projects = [
   {
     title: 'Baño esencial',
     cat: 'Baños',
-    image: '/productos/repisa-dispensadora-mural.png',
+    image: '/productos/repisa-dispensadora-mural.webp',
     meta: 'Acero · Medellín · 2026',
   },
   {
     title: 'Árbol de Luz',
     cat: 'Iluminación',
-    image: '/productos/panel-decorativo-arbol-de-luz.png',
+    image: '/productos/panel-decorativo-arbol-de-luz.webp',
     meta: 'Panel calado · Bogotá · 2026',
   },
   {
     title: 'Rincón Vinyl',
     cat: 'Mobiliario',
-    image: '/productos/mesa-auxiliar-vinyl-stand.png',
+    image: '/productos/mesa-auxiliar-vinyl-stand.webp',
     meta: 'Acero y madera · Envigado · 2026',
   },
   {
     title: 'Orden exterior',
     cat: 'Exterior',
-    image: '/productos/organizador-mural-jardin.png',
+    image: '/productos/organizador-mural-jardin.webp',
     meta: 'Acero galvanizado · Rionegro · 2026',
   },
 ];

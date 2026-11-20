@@ -21,27 +21,27 @@ const customOptions = [
 const fabricationExamples = [
   {
     title: 'Repisas y estanterías',
-    image: '/productos/repisa-dispensadora-mural.png',
+    image: '/productos/repisa-dispensadora-mural.webp',
     desc: 'Soportes minimalistas y estantes flotantes con acabados industriales.'
   },
   {
     title: 'Lámparas y Apliques',
-    image: '/productos/lampara-mural-geometrica.png',
+    image: '/productos/lampara-mural-geometrica.webp',
     desc: 'Iluminación escultórica que transforma la atmósfera de cualquier espacio.'
   },
   {
     title: 'Paneles Decorativos',
-    image: '/productos/panel-decorativo-arbol-de-luz.png',
+    image: '/productos/panel-decorativo-arbol-de-luz.webp',
     desc: 'Divisores de ambiente y arte mural cortado en láser con precisión.'
   },
   {
     title: 'Muebles y Soportes',
-    image: '/productos/mesa-auxiliar-vinyl-stand.png',
+    image: '/productos/mesa-auxiliar-vinyl-stand.webp',
     desc: 'Mobiliario funcional diseñado específicamente para tus necesidades.'
   },
   {
     title: 'Señalética',
-    image: '/productos/organizador-mural-jardin.png',
+    image: '/productos/organizador-mural-jardin.webp',
     desc: 'Placas identificativas y branding metálico para comercios y hoteles.'
   },
 ];

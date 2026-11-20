@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState, type FormEvent } from 'react';
+import Image from 'next/image';
 import { slugify } from '@/lib/utils';
 type Category = { id: string; name: string };
 type Product = {
@@ -81,6 +82,8 @@ export function ProductsManager() {
   const [busy, setBusy] = useState(false);
   const [publishing, setPublishing] = useState<string | null>(null);
   const [publishMessage, setPublishMessage] = useState('');
+  const [showForm, setShowForm] = useState(false);
+  const [view, setView] = useState<'list' | 'grid'>('list');
   async function load() {
     const [p, c] = await Promise.all([
       fetch('/api/admin/products'),
@@ -94,8 +97,22 @@ export function ProductsManager() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
   }, []);
+  function openNew() {
+    setEditing(null);
+    setForm({ ...empty, categoryId: categories[0]?.id || '' });
+    setMessage('');
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function closeForm() {
+    setEditing(null);
+    setForm({ ...empty, categoryId: categories[0]?.id || '' });
+    setShowForm(false);
+  }
   function edit(p: Product) {
     setEditing(p.id);
+    setShowForm(true);
+    setMessage('');
     setForm({
       name: p.name,
       slug: p.slug,
@@ -165,6 +182,7 @@ export function ProductsManager() {
     }
     setForm({ ...empty, categoryId: categories[0]?.id || '' });
     setEditing(null);
+    setShowForm(false);
     setMessage(editing ? 'Producto actualizado.' : 'Producto creado.');
     await load();
   }
@@ -190,6 +208,19 @@ export function ProductsManager() {
     setMessage(res.ok ? 'Producto eliminado.' : data.error);
     if (res.ok) await load();
   }
+  const actions = (p: Product) => (
+    <>
+      {p.status === 'DRAFT' && <button type="button" disabled={publishing !== null} onClick={() => void publish(p)} className="font-medium text-green-700 disabled:opacity-50" aria-label={`Publicar ${p.name}`}>
+        {publishing === p.id ? 'Publicando…' : 'Publicar'}
+      </button>}
+      <button onClick={() => edit(p)} className="text-amber-700">
+        Editar
+      </button>
+      <button onClick={() => void remove(p.id)} className="text-red-700">
+        Eliminar
+      </button>
+    </>
+  );
   const field = (key: keyof typeof form, label: string, type = 'text') => (
     <label className="block text-sm font-medium">
       {label}
@@ -222,23 +253,19 @@ export function ProductsManager() {
   );
   return (
     <div className="space-y-8">
+      {showForm && (
       <form onSubmit={save} className="rounded-2xl border bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-xl font-semibold">
             {editing ? 'Editar producto' : 'Nuevo producto'}
           </h2>
-          {editing && (
-            <button
-              type="button"
-              onClick={() => {
-                setEditing(null);
-                setForm({ ...empty, categoryId: categories[0]?.id || '' });
-              }}
-              className="text-sm underline"
-            >
-              Cancelar
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={closeForm}
+            className="text-sm underline"
+          >
+            Cancelar
+          </button>
         </div>
         {message && (
           <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">{message}</p>
@@ -360,11 +387,42 @@ export function ProductsManager() {
           {busy ? 'Guardando…' : editing ? 'Guardar cambios' : 'Crear producto'}
         </button>
       </form>
+      )}
+      {message && !showForm && (
+        <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">{message}</p>
+      )}
       <section className="overflow-hidden rounded-2xl border bg-white">
-        <div className="border-b p-5">
-          <h2 className="text-xl font-semibold">Catálogo ({products.length})</h2>
-          {publishMessage && <p role="status" className="mt-2 text-sm text-stone-700">{publishMessage}</p>}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b p-5">
+          <div>
+            <h2 className="text-xl font-semibold">Catálogo ({products.length})</h2>
+            {publishMessage && <p role="status" className="mt-2 text-sm text-stone-700">{publishMessage}</p>}
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="inline-flex rounded-lg border bg-white p-1 text-sm">
+              {(['list', 'grid'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => setView(mode)}
+                  aria-pressed={view === mode}
+                  className={`rounded-md px-3 py-1.5 font-medium ${view === mode ? 'bg-stone-900 text-white' : 'text-stone-600 hover:bg-stone-100'}`}
+                >
+                  {mode === 'list' ? 'Lista' : 'Cuadrícula'}
+                </button>
+              ))}
+            </div>
+            {!showForm && (
+              <button
+                type="button"
+                onClick={openNew}
+                className="min-h-10 rounded-lg bg-stone-900 px-4 py-2 font-semibold text-white"
+              >
+                Nuevo producto
+              </button>
+            )}
+          </div>
         </div>
+        {view === 'list' ? (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead className="bg-stone-50 text-stone-500">
@@ -388,22 +446,37 @@ export function ProductsManager() {
                   <td>${Number(p.price).toLocaleString('es-CO')}</td>
                   <td>{p.stock}</td>
                   <td>{p.status}</td>
-                  <td className="space-x-3 text-right">
-                    {p.status === 'DRAFT' && <button type="button" disabled={publishing !== null} onClick={() => void publish(p)} className="font-medium text-green-700 disabled:opacity-50" aria-label={`Publicar ${p.name}`}>
-                      {publishing === p.id ? 'Publicando…' : 'Publicar'}
-                    </button>}
-                    <button onClick={() => edit(p)} className="text-amber-700">
-                      Editar
-                    </button>
-                    <button onClick={() => void remove(p.id)} className="text-red-700">
-                      Eliminar
-                    </button>
-                  </td>
+                  <td className="space-x-3 text-right">{actions(p)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+        ) : (
+        <div className="grid gap-4 p-5 sm:grid-cols-2 xl:grid-cols-3">
+          {products.map((p) => {
+            const image = p.images.find((i) => i.isPrimary)?.url || p.images[0]?.url;
+            return (
+              <article key={p.id} className="flex flex-col overflow-hidden rounded-xl border">
+                <div className="relative aspect-square bg-stone-100">
+                  {image ? (
+                    <Image src={image} alt={p.name} fill sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw" className="object-cover" />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-sm text-stone-400">Sin foto</div>
+                  )}
+                </div>
+                <div className="flex flex-1 flex-col gap-1 p-4 text-sm">
+                  <h3 className="font-medium">{p.name}</h3>
+                  <span className="text-xs text-stone-400">/{p.slug} · {p.category.name}</span>
+                  <span>${Number(p.price).toLocaleString('es-CO')} · Stock {p.stock}</span>
+                  <span className="text-xs text-stone-500">{p.status}</span>
+                  <div className="mt-auto flex flex-wrap gap-3 pt-3">{actions(p)}</div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+        )}
       </section>
     </div>
   );

@@ -22,7 +22,7 @@ export async function getCatalogProducts(): Promise<DemoProduct[]> {
       description: p.description,
       price: Number(p.price),
       compareAtPrice: p.compareAtPrice ? Number(p.compareAtPrice) : undefined,
-      image: p.images[0]?.url || '/productos/panel-decorativo-arbol-de-luz.png',
+      image: p.images[0]?.url || '/productos/panel-decorativo-arbol-de-luz.webp',
       galleryImages: p.images.map((image) => image.url),
       material: p.material || 'Por definir',
       finish: p.finish || 'Por definir',

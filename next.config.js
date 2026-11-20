@@ -44,10 +44,14 @@ const nextConfig = {
         : []),
     ],
     formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
   },
   async headers() {
     if (process.env.NODE_ENV !== 'production') return [];
     return [{
+      source: '/productos/:path*',
+      headers: [{ key: 'Cache-Control', value: 'public, max-age=2592000' }],
+    }, {
       source: '/:path*',
       headers: [
         { key: 'Content-Security-Policy', value: `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self' https://*.epayco.co; img-src 'self' data: blob: ${supabaseCspSources} https://images.unsplash.com https://via.placeholder.com; script-src 'self' 'unsafe-inline' https://checkout.epayco.co https://*.epayco.co; style-src 'self' 'unsafe-inline'; connect-src 'self' ${supabaseCspSources} https://*.epayco.co; frame-src 'self' https://checkout.epayco.co https://*.epayco.co; upgrade-insecure-requests` },

@@ -38,7 +38,7 @@ export default async function HomeCollectionPage() {
             <div className="product-shine relative aspect-[4/5] overflow-hidden rounded-2xl shadow-2xl group">
               <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <Image
-                src="/productos/repisa-dispensadora-mural.png"
+                src="/productos/repisa-dispensadora-mural.webp"
                 alt="Repisa metálica Irons para un baño contemporáneo"
                 fill
                 priority

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
+import sharp from 'sharp';
 import { requireAdminApi } from '@/lib/admin-api';
 import { createSupabaseAdmin } from '@/lib/supabase/admin';
 const allowed = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/avif']);
@@ -14,6 +15,11 @@ export async function POST(request: Request) {
         { error: 'Usa JPG, PNG, WebP o AVIF de máximo 8 MB.' },
         { status: 400 }
       );
+    const optimized = await sharp(Buffer.from(await file.arrayBuffer()))
+      .rotate()
+      .resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 82, effort: 4 })
+      .toBuffer();
     const supabase = createSupabaseAdmin();
     const bucket = process.env.SUPABASE_PRODUCT_BUCKET || 'product-images';
     await supabase.storage.createBucket(bucket, {
@@ -21,11 +27,10 @@ export async function POST(request: Request) {
       fileSizeLimit: 8 * 1024 * 1024,
       allowedMimeTypes: [...allowed],
     });
-    const ext = file.name.split('.').pop()?.toLowerCase() || 'webp';
-    const path = `products/${Date.now()}-${randomUUID()}.${ext}`;
+    const path = `products/${Date.now()}-${randomUUID()}.webp`;
     const { error } = await supabase.storage
       .from(bucket)
-      .upload(path, file, { contentType: file.type, upsert: false });
+      .upload(path, optimized, { contentType: 'image/webp', upsert: false });
     if (error) throw error;
     const { data } = supabase.storage.from(bucket).getPublicUrl(path);
     return NextResponse.json({ url: data.publicUrl });

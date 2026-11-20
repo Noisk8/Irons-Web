@@ -36,7 +36,7 @@ export default function LaserPage() {
         </div>
         <div className="relative aspect-square overflow-hidden rounded-2xl">
           <Image
-            src="/productos/panel-decorativo-arbol-de-luz.png"
+            src="/productos/panel-decorativo-arbol-de-luz.webp"
             alt="Detalle de trabajo de corte y grabado"
             fill
             sizes="(max-width: 1024px) 100vw, 50vw"

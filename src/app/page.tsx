@@ -31,7 +31,7 @@ export const metadata: Metadata = {
       'Metalistería personalizada, grabado láser y decoración en metal para hogares y espacios comerciales.',
     images: [
       {
-        url: '/productos/panel-decorativo-arbol-de-luz.png',
+        url: '/productos/panel-decorativo-arbol-de-luz.webp',
         alt: 'Irons - Metalistería y decoración personalizada',
       },
     ],
