@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
-import prisma from '@/lib/prisma';
-import { epaycoPaymentStatus, isValidEpaycoConfirmation, type EpaycoConfirmation } from '@/lib/epayco';
-import { lookupEpayco, paymentConfig } from '@/lib/payments';
-import { releaseOrderStock, reserveOrderStock } from '@/lib/orders';
+import { isValidEpaycoConfirmation, type EpaycoConfirmation } from '@/lib/epayco';
+import { lookupEpayco } from '@/lib/payments';
+import { syncEpaycoTransaction } from '@/lib/payment-sync';
 
 export const runtime = 'nodejs';
 
@@ -20,40 +19,11 @@ async function confirmation(request: Request) {
     // The signature does not cover the invoice or response code. Obtain both
     // directly from ePayco before applying any state change.
     const verified = await lookupEpayco(payload.x_ref_payco!);
-    const invoice = verified.x_id_invoice || verified.x_id_factura;
-    const status = epaycoPaymentStatus(verified);
-    if (!invoice || !status || verified.x_ref_payco !== payload.x_ref_payco || verified.x_transaction_id !== payload.x_transaction_id || verified.x_currency_code !== payload.x_currency_code || !verified.x_amount || !new Prisma.Decimal(verified.x_amount).equals(payload.x_amount!)) {
+    if (!verified.x_amount || verified.x_ref_payco !== payload.x_ref_payco || verified.x_transaction_id !== payload.x_transaction_id || verified.x_currency_code !== payload.x_currency_code || !new Prisma.Decimal(verified.x_amount).equals(payload.x_amount!)) {
       return NextResponse.json({ error: 'Transacción no coincidente' }, { status: 400 });
     }
-    const test = paymentConfig().EPAYCO_TEST_MODE === 'true';
-    if (!['true', 'false', '1', '0'].includes(verified.x_test_request?.toLowerCase()) || ['true', '1'].includes(verified.x_test_request.toLowerCase()) !== test) {
-      return NextResponse.json({ error: 'Entorno no coincidente' }, { status: 400 });
-    }
-    const payment = await prisma.payment.findUnique({ where: { id: invoice }, include: { order: true } });
-    if (!payment || payment.currency !== verified.x_currency_code || !payment.amount.equals(verified.x_amount) || !payment.order.total.equals(payment.amount)) {
-      return NextResponse.json({ error: 'Pedido no coincidente' }, { status: 400 });
-    }
-    const now = new Date();
-    await prisma.$transaction(async (tx) => {
-      // Stock is reserved when the order is created. It is released exactly once, on the transition that closes the order.
-      if (status === 'APPROVED') {
-        const approved = await tx.order.updateMany({ where: { id: payment.orderId, status: { in: ['PENDING', 'PAYMENT_INITIATED'] } }, data: { status: 'APPROVED', paidAt: now } });
-        if (approved.count === 0) {
-          const reopened = await tx.order.updateMany({ where: { id: payment.orderId, status: { in: ['REJECTED', 'FAILED', 'CANCELLED', 'REFUNDED'] } }, data: { status: 'APPROVED', paidAt: now } });
-          if (reopened.count === 1) await reserveOrderStock(tx, payment.orderId);
-        }
-      } else if (status === 'REFUNDED') {
-        const refunded = await tx.order.updateMany({ where: { id: payment.orderId, status: 'APPROVED' }, data: { status: 'REFUNDED' } });
-        if (refunded.count === 1) await releaseOrderStock(tx, payment.orderId);
-      } else if (status === 'REJECTED' || status === 'FAILED') {
-        const closed = await tx.order.updateMany({ where: { id: payment.orderId, status: { in: ['PENDING', 'PAYMENT_INITIATED'] } }, data: { status } });
-        if (closed.count === 1) await releaseOrderStock(tx, payment.orderId);
-      }
-      await tx.payment.updateMany({
-        where: { id: payment.id, ...(status === 'REFUNDED' ? {} : { status: { not: 'APPROVED' } }) },
-        data: { status, providerId: verified.x_ref_payco, processedAt: status === 'PENDING' ? null : now },
-      });
-    });
+    const error = await syncEpaycoTransaction(verified);
+    if (error) return NextResponse.json({ error }, { status: 400 });
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error('No se pudo procesar la confirmación de ePayco:', error instanceof Error ? error.message : 'error');

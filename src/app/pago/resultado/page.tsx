@@ -3,6 +3,7 @@ import { Layout } from '@/components/layout';
 import { ClearCartOnApproval } from '@/components/checkout/ClearCartOnApproval';
 import { epaycoPaymentStatus } from '@/lib/epayco';
 import { lookupEpayco } from '@/lib/payments';
+import { syncEpaycoTransaction } from '@/lib/payment-sync';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,8 +20,11 @@ export default async function PaymentResult({ searchParams }: { searchParams: Pr
   let approved = false;
   if (ref_payco) {
     try {
-      // The status comes from ePayco's server-side query, not from the URL. The webhook updates the order separately.
-      const status = epaycoPaymentStatus(await lookupEpayco(ref_payco));
+      // The status comes from ePayco's server-side query, not from the URL. It is also applied to the order,
+      // so the admin stays in sync even if the webhook was not delivered.
+      const transaction = await lookupEpayco(ref_payco);
+      await syncEpaycoTransaction(transaction);
+      const status = epaycoPaymentStatus(transaction);
       if (status && status in messages) message = messages[status as keyof typeof messages];
       approved = status === 'APPROVED';
     } catch { /* A temporary error keeps the pending message. */ }
